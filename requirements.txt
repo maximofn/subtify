@@ -1,1 +1,5 @@
-apt-get: libsndfile1
+speechbrain
+soundfile
+modelscope
+rotary-embedding-torch
+librosa

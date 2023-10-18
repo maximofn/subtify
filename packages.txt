@@ -1,1 +1,1 @@
-libsndfile1
+apt-get install libsndfile1
