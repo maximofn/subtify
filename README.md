@@ -1,6 +1,6 @@
 ---
 title: Subtify
-emoji: 📚
+emoji: 🎬 ➡️ 🎤 ➡️ 📝
 colorFrom: blue
 colorTo: gray
 sdk: gradio
