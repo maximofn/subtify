@@ -60,6 +60,12 @@ def main(args):
     input_name = input.split(".")[0]
     output_name = output.split(".")[0]
 
+    # Get folder of output file
+    input_folder = input_name.split("/")[0]
+    output_folder = output_name.split("/")[0]
+    input_file_name = input_name.split("/")[1]
+    output_file_name = output_name.split("/")[1]
+
     # Set input files with 8k sample rate and mono
     input_8k = f"{input_name}_8k.wav"
     input_8k_mono = f"{input_name}_8k_mono.wav"
@@ -67,14 +73,12 @@ def main(args):
     # Check if input has 8k sample rate, if not, change it
     sr = get_sample_rate(input)
     if sr != SAMPLE_RATE:
-        print("Changing sample rate...")
         change_sample_rate(input, input_8k, SAMPLE_RATE)
     else:
         input_8k = input
 
     # Check if input is stereo, if yes, set it to mono
     if audio_is_stereo(input_8k):
-        print("Setting mono...")
         set_mono(input_8k, input_8k_mono)
     else:
         input_8k_mono = input_8k
@@ -82,16 +86,16 @@ def main(args):
     # Separate audio voices
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     separation = pipeline(Tasks.speech_separation, model='damo/speech_mossformer_separation_temporal_8k', device=device)
-    print("Separating...")
     result = separation(input_8k_mono)
-    print("Separated!")
 
     # Save separated audio voices
-    print("Saving...")
     for i, signal in enumerate(result['output_pcm_list']):
-        save_file = f'{output_name}_spk{i}.wav'
+        save_file = f'{output_folder}/{output_file_name}_speaker{i:003d}.wav'
         sf.write(save_file, np.frombuffer(signal, dtype=np.int16), SAMPLE_RATE)
-    print("Saved!")
+    
+    # Remove temporary files
+    os.remove(input_8k)
+    os.remove(input_8k_mono)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Separate speech from a stereo audio file')
