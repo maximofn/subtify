@@ -1,4 +1,7 @@
+# gradio
 gradio
+
+# mossformer --> separate speech audios
 torch
 torchvision
 torchaudio
@@ -6,4 +9,3 @@ speechbrain
 soundfile
 modelscope
 rotary-embedding-torch
-# librosa
