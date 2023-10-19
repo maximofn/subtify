@@ -10,4 +10,6 @@ pinned: false
 license: mit
 ---
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+# Subtify
+
+Subtify is a tool that allows you to generate subtitles for youtube and twitch videos. It can separate voices and generate subtitles for each speaker.
