@@ -60,10 +60,55 @@ def download_twitch(url, type):
         os.system(f'ffmpeg -i {AUDIO_FOLDER}/{DOWNLOAD_AUDIO_NAME}.{args.format} -c:a libmp3lame -b:a 192k -stats -loglevel warning {AUDIO_FOLDER}/{DOWNLOAD_AUDIO_NAME}.{DOWNLOAD_AUDIO_FORMAT}')
         os.system(f'rm {AUDIO_FOLDER}/{DOWNLOAD_AUDIO_NAME}.{args.format}')
 
-def download_youtube_video(url, type):
-    # yt = YouTube(url)
-    # yt.streams.filter(only_audio=True).first().download()
-    pass
+def download_youtube_video(url):
+    yt = YouTube(url)
+
+    # Get all video streams
+    video_streams = yt.streams.filter(mime_type="video/mp4")
+
+    # Get max resolution of video streams
+    max_resolution = 0
+    for stream in video_streams:
+        if stream.audio_codec is not None:
+            resolution = int(stream.resolution[:-1])
+            if resolution > max_resolution:
+                max_resolution = resolution
+    max_resolution = f"{max_resolution}p"
+
+    # Get stream with max resolution
+    video_streams_max_resolution = video_streams.filter(resolution=max_resolution)
+    for stream in video_streams_max_resolution:
+        if stream.audio_codec is not None:
+            video_stream = stream
+    
+    # Download video
+    video_stream.download(filename=f'{VIDEO_FOLDER}/{DOWNLOAD_VIDEO_NAME}.{DOWNLOAD_VIDEO_FORMAT}')
+
+def download_youtube_audio(url):
+    yt = YouTube(url)
+
+    # Get all audio streams
+    audio_streams = yt.streams.filter(mime_type="audio/mp4")
+
+    # Get sorted list of audio bitrates 
+    abr_list = []
+    for stream in audio_streams:
+        abr_list.append(stream.abr)
+    abr_list = sorted(set(abr_list))
+
+    # Get stream with max audio bitrate
+    audio_stream = audio_streams.filter(abr=abr_list[0]).first()
+
+    # Download audio
+    audio_stream.download(filename=f'{AUDIO_FOLDER}/{DOWNLOAD_AUDIO_NAME}.{DOWNLOAD_AUDIO_FORMAT}')
+
+def download_youtube(url, type):
+    if type == DOWNLOAD_VIDEO:
+        download_youtube_video(url)
+    elif type == DOWNLOAD_AUDIO:
+        download_youtube_audio(url)
+    else:
+        print('Unknown youtube download type')
 
 def main(args):
     url = args.url
@@ -71,7 +116,8 @@ def main(args):
         download_twitch(url, DOWNLOAD_VIDEO)
         download_twitch(url, DOWNLOAD_AUDIO)
     elif 'youtube' in url.lower() or 'youtu.be' in url.lower():
-        download_youtube_video(url)
+        download_youtube(url, DOWNLOAD_VIDEO)
+        download_youtube(url, DOWNLOAD_AUDIO)
     else:
         print('Unknown video source')
 
