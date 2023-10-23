@@ -54,7 +54,7 @@ def set_mono(input_audio_file_path, output_audio_file_path):
 def main(args):
     # Get input and output files
     input = args.input
-    output = args.output
+    output = args.input
 
     # Get input and output names
     input_name = input.split(".")[0]
@@ -74,14 +74,18 @@ def main(args):
     sr = get_sample_rate(input)
     if sr != SAMPLE_RATE:
         change_sample_rate(input, input_8k, SAMPLE_RATE)
+        remove_8k = True
     else:
         input_8k = input
+        remove_8k = False
 
     # Check if input is stereo, if yes, set it to mono
     if audio_is_stereo(input_8k):
         set_mono(input_8k, input_8k_mono)
+        remove_mono = True
     else:
         input_8k_mono = input_8k
+        remove_mono = False
 
     # Separate audio voices
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -94,12 +98,13 @@ def main(args):
         sf.write(save_file, np.frombuffer(signal, dtype=np.int16), SAMPLE_RATE)
     
     # Remove temporary files
-    os.remove(input_8k)
-    os.remove(input_8k_mono)
+    if remove_8k:
+        os.remove(input_8k)
+    if remove_mono:
+        os.remove(input_8k_mono)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description='Separate speech from a stereo audio file')
     argparser.add_argument('input', type=str, help='Input audio file')
-    argparser.add_argument('output', type=str, help='Output directory')
     args = argparser.parse_args()
     main(args)
