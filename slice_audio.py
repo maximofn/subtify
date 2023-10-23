@@ -39,6 +39,7 @@ def main(args):
 
     # Slice audio into SECONDS chunks
     hour, minute, second = seconds_to_hms(SECONDS) # Duration of each chunk
+    output_files = []
     for chunk in range(num_chunks):
         start_time = chunk * SECONDS
         hour_start, minute_start, second_start = seconds_to_hms(start_time) # Start time of each chunk
@@ -57,6 +58,13 @@ def main(args):
         print(command)
         os.system(command)
 
+        output_files.append(output)
+
+    # write output files to a txt file
+    with open(f"{FOLDER}/output_files.txt", "w") as f:
+        for output_file in output_files:
+            f.write(f"{output_file}\n")
+    
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description='Slice audio into smaller chunks')
     argparser.add_argument('input', help='Input audio file')
