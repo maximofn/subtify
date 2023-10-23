@@ -27,12 +27,10 @@ def main(args):
     # name, extension = input.split(".")
     path, filename = os.path.split(input)
     name, extension = os.path.splitext(filename)
-    print(path, name, extension)
 
     # Get audio duration in seconds
     duration = float(os.popen(f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {input}').read())
     hour, minute, second = seconds_to_hms(int(duration))
-    print(f"Audio duration = {duration} = {hour}:{minute:02d}:{second}")
 
     # Number of chunks
     num_chunks = -(-int(duration) // SECONDS)  # Redondeo hacia arriba
@@ -52,10 +50,9 @@ def main(args):
         output = f"{FOLDER}/{name}_chunk{chunk:003d}{extension}"
 
         if start_time + SECONDS > duration:
-            command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} {output}'
+            command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} -loglevel error {output}'
         else:
-            command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} -t {hour:02}:{minute:02}:{second:02} {output}'
-        print(command)
+            command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} -t {hour:02}:{minute:02}:{second:02} -loglevel error {output}'
         os.system(command)
 
         output_files.append(output)
