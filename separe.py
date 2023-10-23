@@ -62,7 +62,7 @@ def main(args):
 
     # Get folder of output file
     input_folder = input_name.split("/")[0]
-    output_folder = output_name.split("/")[0]
+    output_folder = "vocals"
     input_file_name = input_name.split("/")[1]
     output_file_name = output_name.split("/")[1]
 
