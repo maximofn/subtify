@@ -3,4 +3,8 @@
 *.mp4
 *.md
 *.txt
+*.json
+*.srt
+*.tsv
+*.vtt
 git_*.sh
