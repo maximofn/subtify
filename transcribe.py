@@ -13,9 +13,10 @@ def main(args):
     device = "cuda"
     verbose = False
     threads = 4
+    output_format = "srt"
     command = f'whisper --model {model} --output_dir {output_folder} --language {language} \
 --word_timestamps {word_timestamps} --fp16 {fp16} --device {device} --verbose {verbose} \
---threads {threads} {audio_file}'
+--threads {threads} --output_format {output_format} {audio_file}'
     os.system(command)
 
 if __name__ == "__main__":
