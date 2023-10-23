@@ -13,3 +13,6 @@ speechbrain
 soundfile
 modelscope
 rotary-embedding-torch
+
+# Trascribe audios
+git+https://github.com/openai/whisper.git
