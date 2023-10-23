@@ -28,7 +28,7 @@ def change_sample_rate(input_audio_file_path, output_audio_file_path, sample_rat
         output_audio_file_path (str): Path to the output audio file
         sample_rate (int): Sample rate to change to
     """
-    os.system(f'ffmpeg -i {input_audio_file_path} -ar {sample_rate} {output_audio_file_path}')
+    os.system(f'ffmpeg -i {input_audio_file_path} -ar {sample_rate} -loglevel error {output_audio_file_path}')
 
 def audio_is_stereo(audio_file_path):
     """
@@ -49,7 +49,7 @@ def set_mono(input_audio_file_path, output_audio_file_path):
         input_audio_file_path (str): Path to the input audio file
         output_audio_file_path (str): Path to the output audio file
     """
-    os.system(f'ffmpeg -i {input_audio_file_path} -ac 1 {output_audio_file_path}')
+    os.system(f'ffmpeg -i {input_audio_file_path} -ac 1 -loglevel error {output_audio_file_path}')
 
 def main(args):
     # Get input and output files
