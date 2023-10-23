@@ -2,7 +2,7 @@ import os
 import argparse
 
 START = 00
-SECONDS = 150
+# SECONDS = 150
 FOLDER = "chunks"
 
 def seconds_to_hms(seconds):
@@ -27,29 +27,30 @@ def main(args):
     # name, extension = input.split(".")
     path, filename = os.path.split(input)
     name, extension = os.path.splitext(filename)
+    seconds = int(args.seconds)
 
     # Get audio duration in seconds
     duration = float(os.popen(f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {input}').read())
     hour, minute, second = seconds_to_hms(int(duration))
 
     # Number of chunks
-    num_chunks = -(-int(duration) // SECONDS)  # Redondeo hacia arriba
+    num_chunks = -(-int(duration) // seconds)  # Redondeo hacia arriba
 
-    # Slice audio into SECONDS chunks
-    hour, minute, second = seconds_to_hms(SECONDS) # Duration of each chunk
+    # Slice audio into seconds chunks
+    hour, minute, second = seconds_to_hms(seconds) # Duration of each chunk
     output_files = []
     for chunk in range(num_chunks):
-        start_time = chunk * SECONDS
+        start_time = chunk * seconds
         hour_start, minute_start, second_start = seconds_to_hms(start_time) # Start time of each chunk
 
-        if start_time + SECONDS > duration:
+        if start_time + seconds > duration:
             hour, minute, second = seconds_to_hms(duration - start_time)
         else:
-            hour, minute, second = seconds_to_hms(SECONDS)
+            hour, minute, second = seconds_to_hms(seconds)
 
         output = f"{FOLDER}/{name}_chunk{chunk:003d}{extension}"
 
-        if start_time + SECONDS > duration:
+        if start_time + seconds > duration:
             command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} -loglevel error {output}'
         else:
             command = f'ffmpeg -i {input} -ss {hour_start:02d}:{minute_start:02d}:{second_start:02d} -t {hour:02}:{minute:02}:{second:02} -loglevel error {output}'
@@ -65,5 +66,6 @@ def main(args):
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description='Slice audio into smaller chunks')
     argparser.add_argument('input', help='Input audio file')
+    argparser.add_argument('seconds', help='Duration of each chunk in seconds')
     args = argparser.parse_args()
     main(args)
