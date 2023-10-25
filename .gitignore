@@ -9,3 +9,7 @@
 *.vtt
 git_*.sh
 forma_de_onda.ipynb
+pretrained_models
+sepformer.ipynb
+modelscope.ipynb
+audio_cache
