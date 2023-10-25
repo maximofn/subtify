@@ -13,10 +13,13 @@ speechbrain
 soundfile
 modelscope
 rotary-embedding-torch
+transformers
 
 # Trascribe audios
 git+https://github.com/openai/whisper.git
 
 # Translate
-transformers
 protobuf
+
+# Add subtitles to videos
+opencv-python
