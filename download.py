@@ -47,6 +47,8 @@ def download_twitch(url, type):
     # Select quality
     if type == DOWNLOAD_VIDEO:
         args.quality = qualitys[0]
+        if args.quality == '1080p' or args.quality == '720p':
+            args.quality = f'{args.quality}60'
         args.format = DOWNLOAD_VIDEO_FORMAT
         args.output = f'{VIDEO_FOLDER}/{DOWNLOAD_VIDEO_NAME}.{args.format}'
     elif type == DOWNLOAD_AUDIO:
