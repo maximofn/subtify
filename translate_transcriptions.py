@@ -3,6 +3,7 @@ from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
 from lang_list import LANGUAGE_NAME_TO_CODE, WHISPER_LANGUAGES
 import argparse
 import re
+from tqdm import tqdm
 
 language_dict = {}
 # Iterate over the LANGUAGE_NAME_TO_CODE dictionary
@@ -45,6 +46,7 @@ def main(transcription_file, source_languaje, target_languaje, translate_model, 
     
     # Translate
     translate_transcription = ""
+    progress_bar = tqdm(total=len(transcription), desc='Translating transcription progress')
     for line in transcription:
         if re.match(r"\d+$", line):
             translate_transcription += f"{line}\n"
@@ -56,6 +58,7 @@ def main(transcription_file, source_languaje, target_languaje, translate_model, 
             translated = translate(line, source_languaje, target_languaje, translate_model, translate_tokenizer, device)
             # translated = line
             translate_transcription += f"{translated}\n"
+        progress_bar.update(1)
     
     # Save translation
     output_file = f"{output_folder}/{transcription_file_name}_{target_languaje}.srt"
