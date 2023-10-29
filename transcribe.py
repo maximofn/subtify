@@ -1,6 +1,7 @@
 import os
 import argparse
 from lang_list import LANGUAGE_NAME_TO_CODE, WHISPER_LANGUAGES
+from tqdm import tqdm
 
 # For pyannote.audio diarize
 from pyannote.audio import Model
@@ -26,7 +27,7 @@ def transcribe(audio_file, language, device, vocals):
     # Transcribe audio file
     model = "large-v2"
     # word_timestamps = True
-    print_progress = True
+    print_progress = False
     compute_type = "float16"
     fp16 = True
     batch_size = 8
@@ -60,6 +61,8 @@ if __name__ == "__main__":
 
     with open(args.input_files, 'r') as f:
         inputs = f.read().splitlines()
+    
+    progress_bar = tqdm(total=len(inputs), desc="Transcribe audio files progress")
     for input in inputs:
         input_file, _ = input.split('.')
         _, input_name = input_file.split('/')
@@ -72,3 +75,4 @@ if __name__ == "__main__":
             extension = "mp3"
             file = f'{vocals_folder}/{input_name}.{extension}'
             transcribe(file, language_dict[args.language]["transcriber"], args.device, args.vocals)
+        progress_bar.update(1)
