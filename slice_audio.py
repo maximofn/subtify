@@ -1,8 +1,8 @@
 import os
 import argparse
+from tqdm import tqdm
 
 START = 00
-# SECONDS = 150
 FOLDER = "chunks"
 
 def seconds_to_hms(seconds):
@@ -39,6 +39,7 @@ def main(args):
     # Slice audio into seconds chunks
     hour, minute, second = seconds_to_hms(seconds) # Duration of each chunk
     output_files = []
+    progress_bar = tqdm(total=num_chunks, desc="Slice audio into chunks progress")
     for chunk in range(num_chunks):
         start_time = chunk * seconds
         hour_start, minute_start, second_start = seconds_to_hms(start_time) # Start time of each chunk
@@ -57,6 +58,8 @@ def main(args):
         os.system(command)
 
         output_files.append(output)
+
+        progress_bar.update(1)
 
     # write output files to a txt file
     with open(f"{FOLDER}/output_files.txt", "w") as f:
