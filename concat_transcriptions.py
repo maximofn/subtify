@@ -1,5 +1,6 @@
 import argparse
 import re
+from tqdm import tqdm
 
 def sum_seconds(time, seconds):
     # Get time in seconds
@@ -53,6 +54,7 @@ def concatenate_transcriptions(chunk_files, seconds):
     # Concatenate transcriptions
     transcription = ""
     num_transcriptions = 1
+    progress_bar = tqdm(total=len(files), desc='Concatenating transcriptions progress')
     for i, file in enumerate(files):
         chunk = file
         _, file = chunk.split("/")
@@ -79,6 +81,7 @@ def concatenate_transcriptions(chunk_files, seconds):
             
             else:
                 transcription += f"{line}\n"
+        progress_bar.update(1)
     
     # Write transcription
     file_split = file.split("_")[:-1]
