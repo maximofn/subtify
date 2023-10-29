@@ -20,15 +20,15 @@ for language_name, language_code in LANGUAGE_NAME_TO_CODE.items():
             "translator": language_code
         }
 
-def transcribe(audio_file, language, device):
+def transcribe(audio_file, language, device, vocals):
     output_folder = "transcriptions"
 
     # Transcribe audio file
     model = "large-v2"
     # word_timestamps = True
     print_progress = True
-    compute_type = "float32"
-    fp16 = False
+    compute_type = "float16"
+    fp16 = True
     batch_size = 8
     verbose = False
     min_speakers = 1
@@ -38,9 +38,9 @@ def transcribe(audio_file, language, device):
     hf_token = "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"
     command = f'whisperx {audio_file} --model {model} --batch_size {batch_size} --compute_type {compute_type} \
 --output_dir {output_folder} --output_format {output_format} --verbose {verbose} --language {language} \
---fp16 {fp16} --threads {threads} --print_progress {print_progress} --min_speakers {min_speakers} \
---max_speakers {max_speakers} --diarize --hf_token {hf_token}'
-# --diarize'
+--fp16 {fp16} --threads {threads} --print_progress {print_progress} --device {device}'
+    if vocals:
+        command += f' --diarize --max_speakers {max_speakers} --min_speakers {min_speakers} --hf_token {hf_token}'
     os.system(command)
 
 if __name__ == "__main__":
@@ -49,6 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('language', help='Language of the audio file')
     parser.add_argument('speakers_file', help='File with the number of speakers')
     parser.add_argument('device', help='Device to use for PyTorch inference')
+    parser.add_argument('vocals', help='Vocals or not')
     args = parser.parse_args()
 
     vocals_folder = "vocals"
@@ -66,8 +67,8 @@ if __name__ == "__main__":
             extension = "wav"
             for i in range(speakers):
                 file = f'{vocals_folder}/{input_name}_speaker{i:003d}.{extension}'
-                transcribe(file, language_dict[args.language]["transcriber"], args.device)
+                transcribe(file, language_dict[args.language]["transcriber"], args.device, args.vocals)
         else:
             extension = "mp3"
             file = f'{vocals_folder}/{input_name}.{extension}'
-            transcribe(file, language_dict[args.language]["transcriber"], args.device)
+            transcribe(file, language_dict[args.language]["transcriber"], args.device, args.vocals)
