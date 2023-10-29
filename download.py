@@ -4,6 +4,7 @@ import argparse
 import twitchdl.commands as twitch_downloader
 import twitchdl.twitch
 from twitchdl.commands.download import _parse_playlists
+from tqdm import tqdm
 
 VIDEO_FOLDER = 'videos'
 AUDIO_FOLDER = 'audios'
@@ -114,12 +115,18 @@ def download_youtube(url, type):
 
 def main(args):
     url = args.url
+    num_works = 2
+    download_progress_bar = tqdm(total=num_works, desc='Downloading video and audio progress')
     if 'twitch' in url.lower():
         download_twitch(url, DOWNLOAD_VIDEO)
+        download_progress_bar.update(1)
         download_twitch(url, DOWNLOAD_AUDIO)
+        download_progress_bar.update(1)
     elif 'youtube' in url.lower() or 'youtu.be' in url.lower():
         download_youtube(url, DOWNLOAD_VIDEO)
+        download_progress_bar.update(1)
         download_youtube(url, DOWNLOAD_AUDIO)
+        download_progress_bar.update(1)
     else:
         print('Unknown video source')
 
