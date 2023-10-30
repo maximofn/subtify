@@ -50,7 +50,7 @@ def main(transcription_file, source_languaje, target_languaje, translate_model, 
     for line in transcription:
         if re.match(r"\d+$", line):
             translate_transcription += f"{line}\n"
-        elif re.match(r"\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d", line):
+        elif re.match(r"\d\d:\d\d:\d\d,\d+ --> \d\d:\d\d:\d\d,\d+", line):
             translate_transcription += f"{line}\n"
         elif re.match(r"^$", line):
             translate_transcription += f"{line}\n"
