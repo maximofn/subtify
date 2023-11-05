@@ -8,15 +8,25 @@ import os
 DEBUG = False
 
 COLOR_BLUE = (255, 0, 0)
+BACKGROUND_FOR_COLOR_BLUE = (255, 255, 0)
 COLOR_GREEN = (0, 255, 0)
+BACKGROUND_FOR_COLOR_GREEN = (255, 0, 255)
 COLOR_RED = (0, 0, 255)
+BACKGROUND_FOR_COLOR_RED = (255, 255, 0)
 COLOR_YELLOW = (0, 255, 255)
+BACKGROUND_FOR_COLOR_YELLOW = (255, 0, 0)
 COLOR_WHITE = (255, 255, 255)
+BACKGROUND_FOR_COLOR_WHITE = (128, 128, 128)
 COLOR_BLACK = (0, 0, 0)
-COLOR_BROWN = (0, 255, 255)
+BACKGROUND_FOR_COLOR_BLACK = (128, 128, 128)
+COLOR_BROWN = (202, 221, 234)
+BACKGROUND_FOR_COLOR_BROWN = (234, 215, 202)
 COLOR_MAGENTA = (255, 0, 255)
+BACKGROUND_FOR_COLOR_MAGENTA = (0, 255, 0)
 COLOR_ORANGE = (0, 165, 255)
+BACKGROUND_FOR_COLOR_ORANGE = (255, 90, 0)
 COLOR_PURPLE = (128, 0, 128)
+BACKGROUND_FOR_COLOR_PURPLE = (127, 255, 127)
 COLOR_GRAY = (128, 128, 128)
 
 def replace_characters_that_opencv_cant_show(text):
@@ -25,13 +35,13 @@ def replace_characters_that_opencv_cant_show(text):
     text = text.replace("í", "i")
     text = text.replace("ó", "o")
     text = text.replace("ú", "u")
-    text = text.replace("ñ", "n")
+    text = text.replace("ñ", "nh")
     text = text.replace("Á", "A")
     text = text.replace("É", "E")
     text = text.replace("Í", "I")
     text = text.replace("Ó", "O")
     text = text.replace("Ú", "U")
-    text = text.replace("Ñ", "N")
+    text = text.replace("Ñ", "NH")
     text = text.replace("\n", "")
     text = text.replace("¿", "?")
     text = text.replace("¡", "!")
@@ -47,30 +57,40 @@ def remove_speaker_text(text):
         text = text[prefix_len:]  # Remove the matched text from the beginning
     return text, speaker
 
-def get_filter_text_and_speaker(text, color):
+def get_filter_text_and_speaker(text, color, background):
     text, speaker = remove_speaker_text(text)
     if speaker is not None:
         if speaker == 0:
             color = COLOR_GREEN
+            background = BACKGROUND_FOR_COLOR_GREEN
         elif speaker == 1:
             color = COLOR_BLUE
+            background = BACKGROUND_FOR_COLOR_BLUE
         elif speaker == 2:
             color = COLOR_RED
+            background = BACKGROUND_FOR_COLOR_RED
         elif speaker == 3:
             color = COLOR_YELLOW
+            background = BACKGROUND_FOR_COLOR_YELLOW
         elif speaker == 4:
             color = COLOR_WHITE
+            background = BACKGROUND_FOR_COLOR_WHITE
         elif speaker == 5:
             color = COLOR_BLACK
+            background = BACKGROUND_FOR_COLOR_BLACK
         elif speaker == 6:
             color = COLOR_BROWN
+            background = BACKGROUND_FOR_COLOR_BROWN
         elif speaker == 7:
             color = COLOR_MAGENTA
+            background = BACKGROUND_FOR_COLOR_MAGENTA
         elif speaker == 8:
             color = COLOR_ORANGE
+            background = BACKGROUND_FOR_COLOR_ORANGE
         elif speaker == 9:
             color = COLOR_PURPLE
-    return text, color
+            background = BACKGROUND_FOR_COLOR_PURPLE
+    return text, color, background
 
 def create_dict_of_transcription(transcription_file):
     transcription_dict = {}
@@ -85,7 +105,7 @@ def create_dict_of_transcription(transcription_file):
             # Get start time (dd:dd:dd,ddd) and end time (dd:dd:dd,ddd)
             start, end = line.split(" --> ")
             # Add key to dictionary
-            transcription_dict[start] = ""
+            transcription_dict[start] = {"transcription": "", "end": end}
         
         # if line is a number and carriage continue
         elif re.match(r"\d+$", line):
@@ -99,11 +119,13 @@ def create_dict_of_transcription(transcription_file):
         else:
             # Remove characters that opencv can't show
             line = replace_characters_that_opencv_cant_show(line)
-            transcription_dict[start] += f"{line}\n"
+            transcription_dict[start]["transcription"] += f"{line}\n"
 
     return transcription_dict
 
 def hour_minute_seconds_miliseconds_to_seconds(time):
+    if time is None:
+        return None
     hours, minutes, seconds_miliseconds = time.split(":")
     seconds, miliseconds = seconds_miliseconds.split(",")
     seconds = int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(miliseconds) / 1000
@@ -131,9 +153,12 @@ def search_transcription_in_dict_of_transcription(transcription_dict, seconds):
         key_seconds = hour_minute_seconds_miliseconds_to_seconds(key_hmsms)
         next_key_seconds = hour_minute_seconds_miliseconds_to_seconds(next_key_hmsms)
         if key_seconds <= seconds and seconds < next_key_seconds:
-            return transcription_dict[key_hmsms]
+            transcription = transcription_dict[key_hmsms]["transcription"]
+            end_time = transcription_dict[key_hmsms]["end"]
+            return transcription, end_time
         else:
             continue
+    return None, None
 
 def get_length_of_cv2_text(text, fontFace, fontScale, thickness):
     text_size, _ = cv2.getTextSize(text, fontFace, fontScale, thickness)
@@ -167,7 +192,8 @@ def add_subtitles_to_video(transcription_dict, input_video_file):
     fontFace = cv2.FONT_HERSHEY_DUPLEX
     fontScale = 1
     thickness = 2
-    color = (0, 255, 0)
+    color = COLOR_WHITE
+    background = COLOR_GRAY
     lineType = cv2.LINE_AA
     bottomLeftOrigin = False
 
@@ -180,53 +206,58 @@ def add_subtitles_to_video(transcription_dict, input_video_file):
 
         # Add the text to the frame
         current_time = captured_video.get(cv2.CAP_PROP_POS_MSEC) / 1000
-        text = search_transcription_in_dict_of_transcription(transcription_dict, current_time)
+        text, end_time = search_transcription_in_dict_of_transcription(transcription_dict, current_time)
         if text is not None:
-            if text[-1] == "\n":
-                text = text[:-1]
-            if text[-1] == " ":
-                text = text[:-1]
+            if len(text) > 0:
+                if text[-1] == "\n":
+                    text = text[:-1]
+                if text[-1] == " ":
+                    text = text[:-1]
         if old_text != text:
             old_text = text
         text_length = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
-        if text_length > captured_video_width:
-            necesary_rows = int(text_length // (captured_video_width-100)+1)
-            words = text.split(" ")
-            number_of_words = len(words)
-            words_per_row = int(number_of_words // necesary_rows)
-            text = ""
-            text_position = (50, int(captured_video_height)-50*(necesary_rows+1))
-            rectangle_point1 = (40, text_position[1]-30)
-            for i in range(number_of_words):
-                if i % words_per_row == 0 and i != 0:
-                    text, color = get_filter_text_and_speaker(text, color)
+        current_time = captured_video.get(cv2.CAP_PROP_POS_MSEC) / 1000
+        end_time_seconds = hour_minute_seconds_miliseconds_to_seconds(end_time)
+        if current_time is not None and end_time_seconds is not None:
+            if current_time <= end_time_seconds:
+                if text_length > captured_video_width:
+                    necesary_rows = int(text_length // (captured_video_width-300)+1)
+                    words = text.split(" ")
+                    number_of_words = len(words)
+                    words_per_row = int(number_of_words // necesary_rows)
+                    text = ""
+                    text_position = (50, int(captured_video_height)-50*(necesary_rows+1))
+                    rectangle_point1 = (40, text_position[1]-30)
+                    for i in range(number_of_words):
+                        if i % words_per_row == 0 and i != 0:
+                            text, color, background = get_filter_text_and_speaker(text, color, background)
+                            length_of_text = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
+                            if length_of_text > 10:
+                                rectangle_point2 = (length_of_text+50, text_position[1]+10)
+                                cv2.rectangle(frame, rectangle_point1, rectangle_point2, background, -1, cv2.LINE_AA, 0)
+                            cv2.putText(frame, text, text_position, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
+                            text = ""
+                            text_position = (50, text_position[1]+50)
+                            rectangle_point1 = (40, text_position[1]-30)
+                        text += words[i] + " "
+                    # Add the last words
+                    text, color, background = get_filter_text_and_speaker(text, color, background)
                     length_of_text = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
                     if length_of_text > 10:
                         rectangle_point2 = (length_of_text+50, text_position[1]+10)
-                        cv2.rectangle(frame, rectangle_point1, rectangle_point2, COLOR_GRAY, -1, cv2.LINE_AA, 0)
+                        cv2.rectangle(frame, rectangle_point1, rectangle_point2, background, -1, cv2.LINE_AA, 0)
                     cv2.putText(frame, text, text_position, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
-                    text = ""
-                    text_position = (50, text_position[1]+50)
+                else:
+                    text_position = (50, int(captured_video_height)-50)
                     rectangle_point1 = (40, text_position[1]-30)
-                text += words[i] + " "
-            # Add the last words
-            text, color = get_filter_text_and_speaker(text, color)
-            length_of_text = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
-            if length_of_text > 10:
-                rectangle_point2 = (length_of_text+50, text_position[1]+10)
-                cv2.rectangle(frame, rectangle_point1, rectangle_point2, COLOR_GRAY, -1, cv2.LINE_AA, 0)
-            cv2.putText(frame, text, text_position, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
-        else:
-            text_position = (50, int(captured_video_height)-50)
-            rectangle_point1 = (40, text_position[1]-30)
-            rectangle_point2 = (int(captured_video_width)-50, text_position[1]+10)
-            if text is not None:
-                text, color = get_filter_text_and_speaker(text, color)
-            length_of_text = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
-            if length_of_text > 10:
-                rectangle_point2 = (length_of_text+50, text_position[1]+10)
-                cv2.rectangle(frame, rectangle_point1, rectangle_point2, COLOR_GRAY, -1, cv2.LINE_AA, 0)
-                cv2.putText(frame, text, text_position, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
+                    rectangle_point2 = (int(captured_video_width)-50, text_position[1]+10)
+                    if text is not None:
+                        text, color, background = get_filter_text_and_speaker(text, color, background)
+                    length_of_text = get_length_of_cv2_text(text, fontFace, fontScale, thickness)
+                    if length_of_text > 10:
+                        rectangle_point2 = (length_of_text+50, text_position[1]+10)
+                        cv2.rectangle(frame, rectangle_point1, rectangle_point2, background, -1, cv2.LINE_AA, 0)
+                        cv2.putText(frame, text, text_position, fontFace, fontScale, color, thickness, lineType, bottomLeftOrigin)
         
         # Update the progress bar
         progress_bar.update(1)

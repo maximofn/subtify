@@ -118,8 +118,9 @@ def main(transcription_file, source_languaje, target_languaje, translate_model, 
             translated_transcription_time_stamps += f"{line}\n"
         else:
             if (i < len(translated_transcription_list)):
-                if translated_transcription_list[i][0] == " ": # Remove space at the beginning
-                    translated_transcription_list[i] = translated_transcription_list[i][1:]
+                if len(translated_transcription_list[i]) > 0:
+                    if translated_transcription_list[i][0] == " ": # Remove space at the beginning
+                        translated_transcription_list[i] = translated_transcription_list[i][1:]
                 speaker = ""
                 if re.match(r"\[SPEAKER_\d\d\]:", line):
                     speaker = re.match(r"\[SPEAKER_\d\d\]:", line).group(0)
