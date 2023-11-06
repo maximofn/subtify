@@ -23,6 +23,7 @@ TRANSLATE_TRANSCRIPTIONS = True
 ADD_SUBTITLES_TO_VIDEO = True
 REMOVE_FILES = False
 if DEVICE == "cpu":
+    # I supose that I am on huggingface server
     SECONDS = 300
 else:
     SECONDS = 50
@@ -525,7 +526,7 @@ def subtify():
         subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox, stream_page], outputs=[original_audio, original_audio_path, original_video_path])
         original_audio.change(fn=trascribe_audio, inputs=[original_audio_path, source_languaje], outputs=[original_audio_transcribed, original_audio_transcribed_path])
         original_audio_transcribed.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[original_audio_translated, original_audio_translated_path])
-        # original_audio_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
+        original_audio_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
 
     demo.launch()
 
