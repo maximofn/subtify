@@ -1,9 +1,9 @@
 import gradio as gr
+import argparse
 # import os
 # import torch
 # from time import sleep
 # from tqdm import tqdm
-# import argparse
 # from lang_list import union_language_dict
 # # import pyperclip
 # from pytube import YouTube
@@ -512,6 +512,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.no_ui:
-        subtify_no_ui()
+        pass
+        # subtify_no_ui()
     else:
         subtify()
