@@ -20,8 +20,8 @@ twitch-dl
 git+https://github.com/m-bain/whisperx.git
 pyannote.audio
 
-# # Translate
-# protobuf
+# Translate
+protobuf
 
-# # Add subtitles to videos
-# opencv-python
+# Add subtitles to videos
+opencv-python
