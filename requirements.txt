@@ -2,26 +2,26 @@
 gradio
 
 # Download youtube and twitch videos
-pytube
-twitch-dl
+# pytube
+# twitch-dl
 
-# mossformer --> separate speech audios
-torch
-torchvision
-torchaudio
-speechbrain
-soundfile
-modelscope
-rotary-embedding-torch
-transformers
+# # mossformer --> separate speech audios
+# torch
+# torchvision
+# torchaudio
+# speechbrain
+# soundfile
+# modelscope
+# rotary-embedding-torch
+# transformers
 
-# Trascribe audios
-# git+https://github.com/openai/whisper.git
-git+https://github.com/m-bain/whisperx.git
-pyannote.audio
+# # Trascribe audios
+# # git+https://github.com/openai/whisper.git
+# git+https://github.com/m-bain/whisperx.git
+# pyannote.audio
 
-# Translate
-protobuf
+# # Translate
+# protobuf
 
-# Add subtitles to videos
-opencv-python
+# # Add subtitles to videos
+# opencv-python
