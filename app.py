@@ -22,10 +22,10 @@ CONCATENATE_TRANSCRIPTIONS = True
 TRANSLATE_TRANSCRIPTIONS = True
 ADD_SUBTITLES_TO_VIDEO = True
 REMOVE_FILES = False
-if SEPARE_VOCALS:
-    SECONDS = 150
-else:
+if DEVICE == "cpu":
     SECONDS = 300
+else:
+    SECONDS = 50
 
 YOUTUBE = "youtube"
 TWITCH = "twitch"
@@ -458,7 +458,7 @@ def subtify():
     with gr.Blocks() as demo:
         # Layout
         gr.Markdown("""# Subtify""")
-        gr.Markdown(f"transcribe, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        gr.Markdown(f"translate, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         # model = transformers.AutoModel.from_pretrained("huggingface/my_model")
         # gr.Markdown(f"model.config.url: {model.config.url}")
         token = os.getenv("HF_TOKEN")
@@ -524,7 +524,7 @@ def subtify():
         )
         subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox, stream_page], outputs=[original_audio, original_audio_path, original_video_path])
         original_audio.change(fn=trascribe_audio, inputs=[original_audio_path, source_languaje], outputs=[original_audio_transcribed, original_audio_transcribed_path])
-        # original_audio_transcribed.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[original_audio_translated, original_audio_translated_path])
+        original_audio_transcribed.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[original_audio_translated, original_audio_translated_path])
         # original_audio_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
 
     demo.launch()
