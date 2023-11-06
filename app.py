@@ -1,5 +1,6 @@
 import gradio as gr
 import argparse
+import sys
 # import os
 # import torch
 # from time import sleep
@@ -443,6 +444,7 @@ def subtify():
         # Layout
         gr.Markdown("""# Subtify""")
         gr.Markdown("""# Subtify""")
+        gr.Markdown(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         # with gr.Row(variant="panel"):
         #     url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
         #     copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
