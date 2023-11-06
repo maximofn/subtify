@@ -15,10 +15,10 @@ twitch-dl
 # rotary-embedding-torch
 # transformers
 
-# # Trascribe audios
-# # git+https://github.com/openai/whisper.git
-# git+https://github.com/m-bain/whisperx.git
-# pyannote.audio
+# Trascribe audios
+# git+https://github.com/openai/whisper.git
+git+https://github.com/m-bain/whisperx.git
+pyannote.audio
 
 # # Translate
 # protobuf

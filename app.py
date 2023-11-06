@@ -441,7 +441,7 @@ import argparse
 def subtify():
     with gr.Blocks() as demo:
         # Layout
-        gr.Markdown("""# Subtify""")
+        gr.Markdown("""# Subtify2""")
         # with gr.Row(variant="panel"):
         #     url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
         #     copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
