@@ -15,12 +15,12 @@ NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # DEVICE = "cpu"
 DOWNLOAD = True
-SLICE_AUDIO = False
+SLICE_AUDIO = True
 SEPARE_VOCALS = False
-TRANSCRIBE_AUDIO = False
-CONCATENATE_TRANSCRIPTIONS = False
-TRANSLATE_TRANSCRIPTIONS = False
-ADD_SUBTITLES_TO_VIDEO = False
+TRANSCRIBE_AUDIO = True
+CONCATENATE_TRANSCRIPTIONS = True
+TRANSLATE_TRANSCRIPTIONS = True
+ADD_SUBTITLES_TO_VIDEO = True
 REMOVE_FILES = False
 if SEPARE_VOCALS:
     SECONDS = 150
@@ -36,6 +36,18 @@ language_dict = union_language_dict()
 def subtify_no_ui():
     number_works = 7
     progress_bar = tqdm(total=number_works, desc="Subtify")
+    folder_vocals = "vocals"
+    folder_chunck = "chunks"
+    folder_concatenated = "concatenated_transcriptions"
+    folder_translated_transcriptions = "translated_transcriptions"
+    if not os.path.exists(folder_vocals):
+        os.makedirs(folder_vocals)
+    if not os.path.exists(folder_chunck):
+        os.makedirs(folder_chunck)
+    if not os.path.exists(folder_concatenated):
+        os.makedirs(folder_concatenated)
+    if not os.path.exists(folder_translated_transcriptions):
+        os.makedirs(folder_translated_transcriptions)
 
     ################## Download video and audio ##################
     if DOWNLOAD:
@@ -83,8 +95,6 @@ def subtify_no_ui():
                 os.system(command)
     else:
         print("Moving chunks")
-        folder_vocals = "vocals"
-        folder_chunck = "chunks"
         with open(f"{folder_vocals}/speakers.txt", 'w') as f:
             f.write(str(0))
         if REMOVE_FILES:
@@ -339,10 +349,13 @@ def get_audio_and_video_from_video(url, stream_page):
 def trascribe_audio(audio_path, source_languaje):
     folder_vocals = "vocals"
     folder_chunck = "chunks"
+    folder_concatenated = "concatenated_transcriptions"
     if not os.path.exists(folder_vocals):
         os.makedirs(folder_vocals)
     if not os.path.exists(folder_chunck):
         os.makedirs(folder_chunck)
+    if not os.path.exists(folder_concatenated):
+        os.makedirs(folder_concatenated)
     python_file = "slice_audio.py"
     command = f"python {python_file} {audio_path} {SECONDS}"
     os.system(command)
@@ -402,6 +415,9 @@ def trascribe_audio(audio_path, source_languaje):
     )
 
 def translate_transcription(original_audio_transcribed_path, source_languaje, target_languaje):
+    folder_translated_transcriptions = "translated_transcriptions"
+    if not os.path.exists(folder_translated_transcriptions):
+        os.makedirs(folder_translated_transcriptions)
     python_file = "translate_transcriptions.py"
     command = f"python {python_file} {original_audio_transcribed_path} --source_languaje {source_languaje} --target_languaje {target_languaje} --device {DEVICE}"
     os.system(command)
@@ -442,7 +458,7 @@ def subtify():
     with gr.Blocks() as demo:
         # Layout
         gr.Markdown("""# Subtify""")
-        gr.Markdown("transcribe, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        gr.Markdown(f"transcribe, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         # model = transformers.AutoModel.from_pretrained("huggingface/my_model")
         # gr.Markdown(f"model.config.url: {model.config.url}")
         token = os.getenv("HF_TOKEN")
