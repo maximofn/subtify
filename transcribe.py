@@ -28,7 +28,7 @@ def transcribe(audio_file, language, device, vocals):
     model = "large-v2"
     # word_timestamps = True
     print_progress = False
-    compute_type = "float16"
+    compute_type = "float32"
     fp16 = True
     batch_size = 8
     verbose = False
