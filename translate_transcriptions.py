@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
 from lang_list import LANGUAGE_NAME_TO_CODE, WHISPER_LANGUAGES
