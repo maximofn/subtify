@@ -22,7 +22,6 @@ CONCATENATE_TRANSCRIPTIONS = False
 TRANSLATE_TRANSCRIPTIONS = False
 ADD_SUBTITLES_TO_VIDEO = False
 REMOVE_FILES = False
-REMOVE_ALL = False
 if SEPARE_VOCALS:
     SECONDS = 150
 else:
@@ -197,26 +196,21 @@ def subtify_no_ui():
         print("\n\n")
     progress_bar.update(1)
 
-    ################## Remove all ##################
-    if REMOVE_ALL:
-        command = f"rm audios/*"
-        os.system(command)
-        command = f"rm chunks/*"
-        os.system(command)
-        command = f"rm concatenated_transcriptions/*"
-        os.system(command)
-        command = f"rm transcriptions/*"
-        os.system(command)
-        command = f"rm translated_transcriptions/*"
-        os.system(command)
-        # Check if videos/download_video.mp4 exists
-        if os.path.isfile("videos/download_video.mp4"):
-            command = f"rm videos/download_video.mp4"
-            os.system(command)
-        # command = f"rm videos/*"
-        # os.system(command)
-        command = f"rm vocals/*"
-        os.system(command)
+def remove_all():
+    command = f"rm -r audios"
+    os.system(command)
+    command = f"rm -r chunks"
+    os.system(command)
+    command = f"rm -r concatenated_transcriptions"
+    os.system(command)
+    command = f"rm -r transcriptions"
+    os.system(command)
+    command = f"rm -r translated_transcriptions"
+    os.system(command)
+    command = f"rm -r videos"
+    os.system(command)
+    command = f"rm -r vocals"
+    os.system(command)
 
 # # def copy_url_from_clipboard():
 # #     return pyperclip.paste()
@@ -343,12 +337,16 @@ def get_audio_and_video_from_video(url, stream_page):
     )
 
 def trascribe_audio(audio_path, source_languaje):
+    folder_vocals = "vocals"
+    folder_chunck = "chunks"
+    if not os.path.exists(folder_vocals):
+        os.makedirs(folder_vocals)
+    if not os.path.exists(folder_chunck):
+        os.makedirs(folder_chunck)
     python_file = "slice_audio.py"
     command = f"python {python_file} {audio_path} {SECONDS}"
     os.system(command)
 
-    folder_vocals = "vocals"
-    folder_chunck = "chunks"
     with open(f"{folder_vocals}/speakers.txt", 'w') as f:
         f.write(str(0))
     command = f"mv {folder_chunck}/*.mp3 {folder_vocals}/"
@@ -444,8 +442,7 @@ def subtify():
     with gr.Blocks() as demo:
         # Layout
         gr.Markdown("""# Subtify""")
-        gr.Markdown("""download""")
-        gr.Markdown(f"Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        gr.Markdown("transcribe, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         # model = transformers.AutoModel.from_pretrained("huggingface/my_model")
         # gr.Markdown(f"model.config.url: {model.config.url}")
         token = os.getenv("HF_TOKEN")
@@ -520,10 +517,12 @@ def subtify():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--no_ui", action="store_true")
+    parser.add_argument("--remove_all", action="store_true")
     args = parser.parse_args()
 
     if args.no_ui:
-        pass
-        # subtify_no_ui()
+        subtify_no_ui()
+    elif args.remove_all:
+        remove_all()
     else:
         subtify()
