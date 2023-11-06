@@ -2,7 +2,7 @@
 gradio
 
 # Download youtube and twitch videos
-# pytube
+pytube
 yt-dlp
 twitch-dl
 
