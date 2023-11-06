@@ -1,6 +1,9 @@
 # gradio
 gradio
 
+# Get environment
+transformers
+
 # Download youtube and twitch videos
 pytube
 yt-dlp

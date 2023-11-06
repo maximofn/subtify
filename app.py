@@ -9,6 +9,7 @@ from lang_list import union_language_dict
 # import pyperclip
 from pytube import YouTube
 import re
+import transformers
 
 NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -444,7 +445,15 @@ def subtify():
         # Layout
         gr.Markdown("""# Subtify""")
         gr.Markdown("""download""")
-        gr.Markdown(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        gr.Markdown(f"Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        # model = transformers.AutoModel.from_pretrained("huggingface/my_model")
+        # gr.Markdown(f"model.config.url: {model.config.url}")
+        token = os.getenv("HF_TOKEN")
+        if token is not None:
+            print(token)
+            gr.Markdown(f"Huggingface token: {token}")
+        else:
+            gr.Markdown(f"Huggingface token: None")
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
@@ -501,7 +510,7 @@ def subtify():
             ]
         )
         subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox, stream_page], outputs=[original_audio, original_audio_path, original_video_path])
-        # original_audio.change(fn=trascribe_audio, inputs=[original_audio_path, source_languaje], outputs=[original_audio_transcribed, original_audio_transcribed_path])
+        original_audio.change(fn=trascribe_audio, inputs=[original_audio_path, source_languaje], outputs=[original_audio_transcribed, original_audio_transcribed_path])
         # original_audio_transcribed.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[original_audio_translated, original_audio_translated_path])
         # original_audio_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
 
