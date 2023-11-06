@@ -26,7 +26,7 @@ if DEVICE == "cpu":
     # I supose that I am on huggingface server
     SECONDS = 300
 else:
-    SECONDS = 50
+    SECONDS = 300
 
 YOUTUBE = "youtube"
 TWITCH = "twitch"
@@ -231,8 +231,9 @@ def clear_video_url():
     image = gr.Image(visible=visible, scale=1)
     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
+    num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
     translate_button = gr.Button(size="lg", value="translate", min_width="10px", scale=0, visible=visible)
-    original_audio = gr.Audio(label="Original audio", elem_id="original_audio", visible=visible, interactive=False)
     original_audio_transcribed = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", interactive=False, visible=visible)
     original_audio_translated = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", interactive=False, visible=visible)
     return (
@@ -240,8 +241,8 @@ def clear_video_url():
         image, 
         source_languaje, 
         target_languaje, 
+        number_of_speakers, 
         translate_button, 
-        original_audio, 
         original_audio_transcribed, 
         original_audio_translated,
     )
@@ -260,10 +261,9 @@ def is_valid_youtube_url(url):
 def is_valid_url(url):
     source_languaje = gr.Dropdown(visible=True, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=True, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
-    translate_button = gr.Button(size="lg", value="translate", min_width="10px", scale=0, visible=True)
-    original_audio = gr.Audio(label="Original audio", elem_id="original_audio", visible=True, interactive=False)
-    original_audio_transcribed = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", interactive=False, visible=True)
-    original_audio_translated = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", interactive=False, visible=True)
+    num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    number_of_speakers = gr.Dropdown(visible=True, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
+    subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=True)
     subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=True, interactive=False)
 
     # Youtube
@@ -275,24 +275,18 @@ def is_valid_url(url):
                     gr.Image(value=thumbnail, visible=True, show_download_button=False, container=False), 
                     source_languaje,
                     target_languaje,
-                    translate_button, 
-                    gr.Textbox(value=YOUTUBE, label="Stream page", elem_id="stream_page", visible=False),
-                    original_audio,
-                    original_audio_transcribed, 
-                    original_audio_translated,
-                    subtitled_video
+                    number_of_speakers,
+                    subtify_button, 
+                    subtitled_video, 
                 )
             else:
                 return (
                     gr.Image(value="assets/youtube-no-thumbnails.webp", visible=True, show_download_button=False, container=False), 
                     source_languaje,
                     target_languaje,
-                    translate_button, 
-                    gr.Textbox(value=YOUTUBE, label="Stream page", elem_id="stream_page", visible=False),
-                    original_audio,
-                    original_audio_transcribed, 
-                    original_audio_translated,
-                    subtitled_video
+                    number_of_speakers,
+                    subtify_button, 
+                    subtitled_video, 
                 )
     
     # Twitch
@@ -301,12 +295,9 @@ def is_valid_url(url):
             gr.Image(value="assets/twitch.webp", visible=True, show_download_button=False, container=False), 
             source_languaje,
             target_languaje,
-            translate_button, 
-            gr.Textbox(value=TWITCH, label="Stream page", elem_id="stream_page", visible=False),
-            original_audio,
-            original_audio_transcribed, 
-            original_audio_translated,
-            subtitled_video
+            number_of_speakers,
+            subtify_button, 
+            subtitled_video, 
         )
     
     # Error
@@ -314,49 +305,40 @@ def is_valid_url(url):
     image = gr.Image(value="assets/youtube_error.webp", visible=visible, show_download_button=False, container=False)
     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
-    translate_button = gr.Button(size="lg", value="translate", min_width="10px", scale=0, visible=visible)
-    stream_page = gr.Textbox(value=ERROR, label="Stream page", elem_id="stream_page", visible=visible)
-    original_audio = gr.Audio(label="Original audio", elem_id="original_audio", visible=visible, interactive=False)
-    original_audio_transcribed = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", interactive=False, visible=visible)
-    original_audio_translated = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", interactive=False, visible=visible)
-    subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=False)
+    number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
+    subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
+    subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=False),
     return (
         image, 
         source_languaje,
         target_languaje,
-        translate_button, 
-        stream_page,
-        original_audio,
-        original_audio_transcribed, 
-        original_audio_translated,
-        subtitled_video
+        number_of_speakers,
+        subtify_button, 
+        subtitled_video,
     )
 
-def get_audio_and_video_from_video(url, stream_page):
+def get_audio_and_video_from_video(url):
     python_file = "download.py"
     command = f"python {python_file} {url}"
     os.system(command)
-    # sleep(5)
+    sleep(5)
 
     audio = "audios/download_audio.mp3"
     video = "videos/download_video.mp4"
 
     return (
-        gr.Audio(value=audio, label="Original audio", elem_id="original_audio", visible=True, interactive=False),
+        gr.Textbox(value="Ok", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=True),
         gr.Textbox(value=audio, label="Original audio path", elem_id="original_audio_path", visible=False),
         gr.Textbox(value=video, label="Original video path", elem_id="original_video_path", visible=False)
     )
 
-def trascribe_audio(audio_path, source_languaje):
+def slice_audio(audio_path):
     folder_vocals = "vocals"
     folder_chunck = "chunks"
-    folder_concatenated = "concatenated_transcriptions"
     if not os.path.exists(folder_vocals):
         os.makedirs(folder_vocals)
     if not os.path.exists(folder_chunck):
         os.makedirs(folder_chunck)
-    if not os.path.exists(folder_concatenated):
-        os.makedirs(folder_concatenated)
     python_file = "slice_audio.py"
     command = f"python {python_file} {audio_path} {SECONDS}"
     os.system(command)
@@ -365,7 +347,14 @@ def trascribe_audio(audio_path, source_languaje):
         f.write(str(0))
     command = f"mv {folder_chunck}/*.mp3 {folder_vocals}/"
     os.system(command)
+    # sleep(5)
 
+    return (
+        gr.Textbox(value="Ok", label="Video sliced", elem_id="video_sliced", interactive=False, visible=True)
+    )
+
+def trascribe_audio(source_languaje):
+    folder_vocals = "vocals"
     python_file = "transcribe.py"
     chunck_file = "chunks/output_files.txt"
     speakers_file = "vocals/speakers.txt"
@@ -393,6 +382,16 @@ def trascribe_audio(audio_path, source_languaje):
             command = f"rm {vocal}"
             os.system(command)
 
+    return (
+        gr.Textbox(value="Ok", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=True)
+    )
+
+def concatenate_transcriptions():
+    folder_concatenated = "concatenated_transcriptions"
+    if not os.path.exists(folder_concatenated):
+        os.makedirs(folder_concatenated)
+    chunck_file = "chunks/output_files.txt"
+    speakers_file = "vocals/speakers.txt"
     python_file = "concat_transcriptions.py"
     command = f"python {python_file} {chunck_file} {SECONDS} {speakers_file}"
     os.system(command)
@@ -411,8 +410,8 @@ def trascribe_audio(audio_path, source_languaje):
         result = f.read()
 
     return (
-        result,
-        gr.Textbox(value=audio_transcribed, label="Original audio transcribed", elem_id="original_audio_transcribed", visible=False)
+        gr.Textbox(value="Ok", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=True),
+        gr.Textbox(value=audio_transcribed, label="Original audio transcribed", elem_id="original_audio_transcribed", visible=False),
     )
 
 def translate_transcription(original_audio_transcribed_path, source_languaje, target_languaje):
@@ -431,7 +430,7 @@ def translate_transcription(original_audio_transcribed_path, source_languaje, ta
     os.system(command)
 
     return (
-        result,
+        gr.Textbox(value="Ok", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=True),
         gr.Textbox(value=translated_transcription, label="Original audio translated", elem_id="original_audio_translated", visible=False)
     )
 
@@ -458,56 +457,52 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
 def subtify():
     with gr.Blocks() as demo:
         # Layout
+        num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
         gr.Markdown("""# Subtify""")
-        gr.Markdown(f"translate, Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
-        # model = transformers.AutoModel.from_pretrained("huggingface/my_model")
-        # gr.Markdown(f"model.config.url: {model.config.url}")
-        token = os.getenv("HF_TOKEN")
-        if token is not None:
-            print(token)
-            gr.Markdown(f"Huggingface token: {token}")
-        else:
-            gr.Markdown(f"Huggingface token: None")
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
-            copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
-            delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
+            # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
+            # delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
 
-        stream_page = gr.Textbox(label="Stream page", elem_id="stream_page", visible=False)
         visible = False
         with gr.Row(equal_height=False):
             image = gr.Image(visible=visible, scale=1)
             with gr.Column():
                 with gr.Row():
-                    source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
-                    target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
+                    source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True, info="Language of the video")
+                    target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True, info="Language to translate the subtitles")
+                    number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True, info="Number of speakers in the video, if you don't know, select 10")
                 with gr.Row():
                     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
 
-        original_audio = gr.Audio(label="Original audio", elem_id="original_audio", visible=visible, interactive=False)
+        with gr.Row():
+            video_donwloaded = gr.Textbox(placeholder="Waiting", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=True)
+            video_sliced = gr.Textbox(placeholder="Waiting", label="Video sliced", elem_id="video_sliced", interactive=False, visible=True)
+            video_transcribed = gr.Textbox(placeholder="Waiting", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=True)
+            video_translated = gr.Textbox(placeholder="Waiting", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=True)
+            video_subtitled = gr.Textbox(placeholder="Waiting", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=True)
+
         original_audio_path = gr.Textbox(label="Original audio path", elem_id="original_audio_path", visible=False)
         original_video_path = gr.Textbox(label="Original video path", elem_id="original_video_path", visible=False)
-        original_audio_transcribed = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", interactive=False, visible=visible)
         original_audio_transcribed_path = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", visible=False)
-        original_audio_translated = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", interactive=False, visible=visible)
         original_audio_translated_path = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", visible=False)
         subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=False)
 
         # Events
         # copy_button.click(fn=copy_url_from_clipboard, outputs=url_textbox)
-        delete_button.click(
-            fn=clear_video_url, 
-            outputs=[
-                url_textbox, 
-                image, 
-                source_languaje, 
-                target_languaje, 
-                subtify_button, 
-                original_audio, 
-                original_audio_transcribed, 
-                original_audio_translated,
-            ]
-        )
+        # delete_button.click(
+        #     fn=clear_video_url, 
+        #     outputs=[
+        #         url_textbox, 
+        #         image, 
+        #         source_languaje, 
+        #         target_languaje, 
+        #         number_of_speakers, 
+        #         subtify_button, 
+        #         original_audio_transcribed, 
+        #         original_audio_translated,
+        #     ]
+        # )
         url_textbox.change(
             fn=is_valid_url, 
             inputs=url_textbox, 
@@ -515,18 +510,17 @@ def subtify():
                 image, 
                 source_languaje, 
                 target_languaje, 
+                number_of_speakers, 
                 subtify_button, 
-                stream_page, 
-                original_audio, 
-                original_audio_transcribed, 
-                original_audio_translated,
-                subtitled_video
+                subtitled_video,
             ]
         )
-        subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox, stream_page], outputs=[original_audio, original_audio_path, original_video_path])
-        original_audio.change(fn=trascribe_audio, inputs=[original_audio_path, source_languaje], outputs=[original_audio_transcribed, original_audio_transcribed_path])
-        original_audio_transcribed.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[original_audio_translated, original_audio_translated_path])
-        original_audio_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
+        subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox], outputs=[video_donwloaded, original_audio_path, original_video_path])
+        video_donwloaded.change(fn=slice_audio, inputs=[original_audio_path], outputs=[video_sliced])
+        video_sliced.change(fn=trascribe_audio, inputs=[source_languaje], outputs=[video_transcribed])
+        video_transcribed.change(fn=concatenate_transcriptions, inputs=[], outputs=[video_translated, original_audio_transcribed_path])
+        video_translated.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[video_subtitled, original_audio_translated_path])
+        video_subtitled.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=subtitled_video)
 
     demo.launch()
 

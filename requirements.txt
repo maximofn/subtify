@@ -9,18 +9,7 @@ pytube
 yt-dlp
 twitch-dl
 
-# # mossformer --> separate speech audios
-# torch
-# torchvision
-# torchaudio
-# speechbrain
-# soundfile
-# modelscope
-# rotary-embedding-torch
-# transformers
-
 # Trascribe audios
-# git+https://github.com/openai/whisper.git
 git+https://github.com/m-bain/whisperx.git
 pyannote.audio
 

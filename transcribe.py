@@ -28,7 +28,11 @@ def transcribe(audio_file, language, device, vocals):
     model = "large-v2"
     # word_timestamps = True
     print_progress = False
-    compute_type = "float32"
+    if device == "cpu":
+        # I supose that I am on huggingface server
+        compute_type = "float32"
+    else:
+        compute_type = "float16"
     fp16 = True
     batch_size = 8
     verbose = False
