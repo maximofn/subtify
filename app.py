@@ -264,7 +264,6 @@ def is_valid_url(url):
     num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     number_of_speakers = gr.Dropdown(visible=True, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=True)
-    subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=True, interactive=False)
 
     # Youtube
     if "youtube" in url.lower() or "youtu.be" in url.lower():
@@ -277,7 +276,6 @@ def is_valid_url(url):
                     target_languaje,
                     number_of_speakers,
                     subtify_button, 
-                    subtitled_video, 
                 )
             else:
                 return (
@@ -286,7 +284,6 @@ def is_valid_url(url):
                     target_languaje,
                     number_of_speakers,
                     subtify_button, 
-                    subtitled_video, 
                 )
     
     # Twitch
@@ -297,7 +294,6 @@ def is_valid_url(url):
             target_languaje,
             number_of_speakers,
             subtify_button, 
-            subtitled_video, 
         )
     
     # Error
@@ -307,14 +303,29 @@ def is_valid_url(url):
     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
     number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
-    subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=False),
     return (
         image, 
         source_languaje,
         target_languaje,
         number_of_speakers,
         subtify_button, 
-        subtitled_video,
+    )
+
+def change_visibility_texboxes(url):
+    start_block = gr.Textbox(value="Done", label="Start block", elem_id="start_block", interactive=False, visible=False)
+    video_donwloaded = gr.Textbox(placeholder="Waiting", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=True)
+    video_sliced = gr.Textbox(placeholder="Waiting", label="Video sliced", elem_id="video_sliced", interactive=False, visible=True)
+    video_transcribed = gr.Textbox(placeholder="Waiting", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=True)
+    video_translated = gr.Textbox(placeholder="Waiting", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=True)
+    video_subtitled = gr.Textbox(placeholder="Waiting", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=True)
+
+    return (
+        start_block, 
+        video_donwloaded,
+        video_sliced,
+        video_transcribed,
+        video_translated,
+        video_subtitled,
     )
 
 def get_audio_and_video_from_video(url):
@@ -329,7 +340,7 @@ def get_audio_and_video_from_video(url):
     return (
         gr.Textbox(value="Ok", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=True),
         gr.Textbox(value=audio, label="Original audio path", elem_id="original_audio_path", visible=False),
-        gr.Textbox(value=video, label="Original video path", elem_id="original_video_path", visible=False)
+        gr.Textbox(value=video, label="Original video path", elem_id="original_video_path", visible=False),
     )
 
 def slice_audio(audio_path):
@@ -475,18 +486,19 @@ def subtify():
                 with gr.Row():
                     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
 
+        start_block = gr.Textbox(placeholder="Waiting", label="Start block", elem_id="start_block", interactive=False, visible=visible)
         with gr.Row():
-            video_donwloaded = gr.Textbox(placeholder="Waiting", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=True)
-            video_sliced = gr.Textbox(placeholder="Waiting", label="Video sliced", elem_id="video_sliced", interactive=False, visible=True)
-            video_transcribed = gr.Textbox(placeholder="Waiting", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=True)
-            video_translated = gr.Textbox(placeholder="Waiting", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=True)
-            video_subtitled = gr.Textbox(placeholder="Waiting", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=True)
+            video_donwloaded = gr.Textbox(placeholder="Waiting", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=visible)
+            video_sliced = gr.Textbox(placeholder="Waiting", label="Video sliced", elem_id="video_sliced", interactive=False, visible=visible)
+            video_transcribed = gr.Textbox(placeholder="Waiting", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=visible)
+            video_translated = gr.Textbox(placeholder="Waiting", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=visible)
+            video_subtitled = gr.Textbox(placeholder="Waiting", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=visible)
 
-        original_audio_path = gr.Textbox(label="Original audio path", elem_id="original_audio_path", visible=False)
-        original_video_path = gr.Textbox(label="Original video path", elem_id="original_video_path", visible=False)
-        original_audio_transcribed_path = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", visible=False)
-        original_audio_translated_path = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", visible=False)
-        subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=False)
+        original_audio_path = gr.Textbox(label="Original audio path", elem_id="original_audio_path", visible=visible)
+        original_video_path = gr.Textbox(label="Original video path", elem_id="original_video_path", visible=visible)
+        original_audio_transcribed_path = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", visible=visible)
+        original_audio_translated_path = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", visible=visible)
+        subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=visible)
 
         # Events
         # copy_button.click(fn=copy_url_from_clipboard, outputs=url_textbox)
@@ -512,10 +524,10 @@ def subtify():
                 target_languaje, 
                 number_of_speakers, 
                 subtify_button, 
-                subtitled_video,
             ]
         )
-        subtify_button.click(fn=get_audio_and_video_from_video, inputs=[url_textbox], outputs=[video_donwloaded, original_audio_path, original_video_path])
+        subtify_button.click(fn=change_visibility_texboxes, inputs=[], outputs=[start_block, video_donwloaded, video_sliced, video_transcribed, video_translated, video_subtitled])
+        start_block.change(fn=get_audio_and_video_from_video, inputs=[url_textbox], outputs=[video_donwloaded, original_audio_path, original_video_path])
         video_donwloaded.change(fn=slice_audio, inputs=[original_audio_path], outputs=[video_sliced])
         video_sliced.change(fn=trascribe_audio, inputs=[source_languaje], outputs=[video_transcribed])
         video_transcribed.change(fn=concatenate_transcriptions, inputs=[], outputs=[video_translated, original_audio_transcribed_path])
