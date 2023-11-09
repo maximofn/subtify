@@ -1,6 +1,5 @@
 import gradio as gr
 import argparse
-import sys
 import os
 import torch
 from time import sleep
@@ -9,11 +8,9 @@ from lang_list import union_language_dict
 # import pyperclip
 from pytube import YouTube
 import re
-import transformers
 
 NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-# DEVICE = "cpu"
 DOWNLOAD = True
 SLICE_AUDIO = True
 SEPARE_VOCALS = False
@@ -228,23 +225,43 @@ def remove_all():
 
 def clear_video_url():
     visible = False
+    num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     image = gr.Image(visible=visible, scale=1)
     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
-    num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
-    translate_button = gr.Button(size="lg", value="translate", min_width="10px", scale=0, visible=visible)
-    original_audio_transcribed = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", interactive=False, visible=visible)
-    original_audio_translated = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", interactive=False, visible=visible)
+    subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
+    start_block = gr.Textbox(placeholder="Waiting", label="Start block", elem_id="start_block", interactive=False, visible=visible)
+    video_donwloaded = gr.Textbox(placeholder="Waiting", label="Video downloaded", elem_id="video_downloaded", interactive=False, visible=visible)
+    video_sliced = gr.Textbox(placeholder="Waiting", label="Video sliced", elem_id="video_sliced", interactive=False, visible=visible)
+    video_transcribed = gr.Textbox(placeholder="Waiting", label="Video transcribed", elem_id="video_transcribed", interactive=False, visible=visible)
+    transcriptions_concatenated = gr.Textbox(placeholder="Waiting", label="Transcriptions concatenated", elem_id="transcriptions_concatenated", interactive=False, visible=visible)
+    video_translated = gr.Textbox(placeholder="Waiting", label="Transcription translated", elem_id="transcription_translated", interactive=False, visible=visible)
+    video_subtitled = gr.Textbox(placeholder="Waiting", label="Video subtitled", elem_id="video_subtitled", interactive=False, visible=visible)
+    original_audio_path = gr.Textbox(label="Original audio path", elem_id="original_audio_path", visible=visible)
+    original_video_path = gr.Textbox(label="Original video path", elem_id="original_video_path", visible=visible)
+    original_audio_transcribed_path = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", visible=visible)
+    original_audio_translated_path = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", visible=visible)
+    subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=visible)
     return (
         "",
         image, 
         source_languaje, 
         target_languaje, 
         number_of_speakers, 
-        translate_button, 
-        original_audio_transcribed, 
-        original_audio_translated,
+        subtify_button,
+        start_block,
+        video_donwloaded,
+        video_sliced,
+        video_transcribed,
+        transcriptions_concatenated,
+        video_translated,
+        video_subtitled,
+        original_audio_path,
+        original_video_path,
+        original_audio_transcribed_path,
+        original_audio_translated_path,
+        subtitled_video,
     )
 
 def get_youtube_thumbnail(url):
@@ -472,13 +489,14 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
 
 def subtify():
     with gr.Blocks() as demo:
-        # Layout
         num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+        # Layout
         gr.Markdown("""# Subtify""")
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
-            # delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
+            delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
 
         visible = False
         with gr.Row(equal_height=False):
@@ -508,37 +526,63 @@ def subtify():
 
         # Events
         # copy_button.click(fn=copy_url_from_clipboard, outputs=url_textbox)
-        # delete_button.click(
-        #     fn=clear_video_url, 
-        #     outputs=[
-        #         url_textbox, 
-        #         image, 
-        #         source_languaje, 
-        #         target_languaje, 
-        #         number_of_speakers, 
-        #         subtify_button, 
-        #         original_audio_transcribed, 
-        #         original_audio_translated,
-        #     ]
-        # )
-        url_textbox.change(
-            fn=is_valid_url, 
-            inputs=url_textbox, 
+        delete_button.click(
+            fn=clear_video_url, 
             outputs=[
+                url_textbox, 
                 image, 
                 source_languaje, 
                 target_languaje, 
                 number_of_speakers, 
                 subtify_button, 
+                start_block, 
+                video_donwloaded, 
+                video_sliced, 
+                video_transcribed, 
+                transcriptions_concatenated, 
+                video_translated, 
+                video_subtitled, 
+                subtitled_video,
             ]
         )
-        subtify_button.click(fn=change_visibility_texboxes, inputs=[], outputs=[start_block, video_donwloaded, video_sliced, video_transcribed, transcriptions_concatenated, video_translated, video_subtitled])
-        start_block.change(fn=get_audio_and_video_from_video, inputs=[url_textbox], outputs=[video_donwloaded, original_audio_path, original_video_path])
-        video_donwloaded.change(fn=slice_audio, inputs=[original_audio_path], outputs=[video_sliced])
-        video_sliced.change(fn=trascribe_audio, inputs=[source_languaje], outputs=[video_transcribed])
-        video_transcribed.change(fn=concatenate_transcriptions, inputs=[], outputs=[transcriptions_concatenated, original_audio_transcribed_path])
-        transcriptions_concatenated.change(fn=translate_transcription, inputs=[original_audio_transcribed_path, source_languaje, target_languaje], outputs=[video_translated, original_audio_translated_path])
-        video_translated.change(fn=add_translated_subtitles_to_video, inputs=[original_video_path, original_audio_path, original_audio_translated_path], outputs=[video_subtitled, subtitled_video])
+        url_textbox.change(
+            fn=is_valid_url, 
+            inputs=url_textbox, 
+            outputs=[image, source_languaje, target_languaje, number_of_speakers, subtify_button]
+        )
+        subtify_button.click(
+            fn=change_visibility_texboxes, 
+            outputs=[start_block, video_donwloaded, video_sliced, video_transcribed, transcriptions_concatenated, video_translated, video_subtitled]
+        )
+        start_block.change(
+            fn=get_audio_and_video_from_video, 
+            inputs=[url_textbox], 
+            outputs=[video_donwloaded, original_audio_path, original_video_path]
+        )
+        video_donwloaded.change(
+            fn=slice_audio, 
+            inputs=[original_audio_path], 
+            outputs=[video_sliced]
+        )
+        video_sliced.change(
+            fn=trascribe_audio, 
+            inputs=[source_languaje], 
+            outputs=[video_transcribed]
+        )
+        video_transcribed.change(
+            fn=concatenate_transcriptions, 
+            outputs=[transcriptions_concatenated, original_audio_transcribed_path]
+        )
+        transcriptions_concatenated.change(
+            fn=translate_transcription, 
+            inputs=[original_audio_transcribed_path, source_languaje, target_languaje], 
+            outputs=[video_translated, original_audio_translated_path]
+        )
+        video_translated.change(
+            fn=add_translated_subtitles_to_video, 
+            inputs=[original_video_path, original_audio_path, original_audio_translated_path], 
+            outputs=[video_subtitled, subtitled_video]
+        )
 
     demo.launch()
 
