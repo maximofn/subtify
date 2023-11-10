@@ -13,3 +13,5 @@ pretrained_models
 sepformer.ipynb
 modelscope.ipynb
 audio_cache
+*.png
+*.webp

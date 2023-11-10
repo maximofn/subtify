@@ -8,6 +8,7 @@ from lang_list import union_language_dict
 # import pyperclip
 from pytube import YouTube
 import re
+from PIL import Image
 
 NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -28,6 +29,41 @@ else:
 YOUTUBE = "youtube"
 TWITCH = "twitch"
 ERROR = "error"
+
+html_social_media = '''
+<div style="float: right;">
+    <a href="https://maximofn.com/" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/MFN.svg" alt="MFN icon" width="16px">
+    </a>
+    <a href="http://github.com/maximofn" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/github.svg" alt="github icon">
+    </a>
+    <a href="http://linkedin.com/in/MaximoFN/" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/linkedin.svg" alt="linkedin icon">
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=100085177670661" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/facebook.svg" alt="facebook icon">
+    </a>
+    <a href="https://twitter.com/Maximo_fn" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/x.svg" alt="x icon">
+    </a>
+    <a href="https://www.instagram.com/maximo__fn/" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/instagram.svg" alt="instagram icon">
+    </a>
+    <a href="https://www.tiktok.com/@maximo__fn" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/tiktok.svg" alt="tiktok icon">
+    </a>
+    <a href="https://www.twitch.tv/maximofn/" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/twitch.svg" alt="twitch icon">
+    </a>
+    <a href="https://www.youtube.com/channel/UCdQwg2JU_fWRsHn3yIlf3tw" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/youtube.svg" alt="youtube icon">
+    </a>
+    <a href="http://kaggle.com/maximofn" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
+        <img src="http://127.0.0.1:7860/file=assets/kaggle.svg" alt="kaggle icon">
+    </a>
+</div>
+'''
 
 language_dict = union_language_dict()
 
@@ -246,6 +282,10 @@ def reset_frontend():
         gr.Video(visible=visible),
     )
 
+def show_auxiliar_block1():
+    print("show_auxiliar_block1")
+    return gr.Textbox(value="URL checked", visible=True)
+
 def get_youtube_thumbnail(url):
     yt = YouTube(url)
     thumbnail_url = yt.thumbnail_url
@@ -331,6 +371,7 @@ def change_visibility_texboxes():
         gr.Textbox(visible=True),
         gr.Textbox(visible=True),
         gr.Textbox(visible=True),
+        gr.Textbox(visible=False),
     )
 
 def get_audio_and_video_from_video(url):
@@ -477,15 +518,23 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
 def subtify():
     with gr.Blocks() as demo:
         num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+        subtify_logo = Image.open("assets/subtify_logo.webp")
+        subtify_logo_width, subtify_logo_height = subtify_logo.size
+        factor = 5
+        new_width = subtify_logo_width // factor
+        new_height = subtify_logo_height // factor
 
         # Layout
-        gr.Markdown("""# Subtify""")
+        gr.Markdown(html_social_media)
+        gr.Markdown("<h1 style='text-align: center;'>Subtify</h1>")
+        gr.Markdown(f"<img src='https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp' style='width: {new_width}px; height: {new_height}px; margin-left: auto; margin-right: auto; display: block;'/>")
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
             delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
 
         visible = False
+        auxiliar_block1 = gr.Textbox(label="Auxiliar block 1", elem_id="auxiliar_block1", interactive=False, visible=visible)
         with gr.Row(equal_height=False):
             image = gr.Image(visible=visible, scale=1)
             with gr.Column():
@@ -496,7 +545,7 @@ def subtify():
                 with gr.Row():
                     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
 
-        auxiliar_block = gr.Textbox(placeholder="Waiting", label="Auxiliar block", elem_id="auxiliar_block", interactive=False, visible=visible)
+        auxiliar_block2 = gr.Textbox(placeholder="Waiting", label="Auxiliar block 2", elem_id="auxiliar_block2", interactive=False, visible=visible)
         with gr.Row():
             video_donwloaded_progress_info = gr.Textbox(placeholder="Waiting", label="Video downloaded progress info", elem_id="video_donwloaded_progress_info", interactive=False, visible=visible)
             video_sliced_progress_info = gr.Textbox(placeholder="Waiting", label="Video sliced progress info", elem_id="video_sliced_progress_info", interactive=False, visible=visible)
@@ -522,7 +571,7 @@ def subtify():
                 target_languaje, 
                 number_of_speakers, 
                 subtify_button, 
-                auxiliar_block, 
+                auxiliar_block2, 
                 video_donwloaded_progress_info, 
                 video_sliced_progress_info, 
                 video_transcribed_progress_info, 
@@ -533,15 +582,19 @@ def subtify():
             ]
         )
         url_textbox.change(
+            fn=show_auxiliar_block1, 
+            outputs=[auxiliar_block1]
+        )
+        auxiliar_block1.change(
             fn=is_valid_url, 
             inputs=url_textbox, 
             outputs=[image, source_languaje, target_languaje, number_of_speakers, subtify_button]
         )
         subtify_button.click(
             fn=change_visibility_texboxes, 
-            outputs=[auxiliar_block, video_donwloaded_progress_info, video_sliced_progress_info, video_transcribed_progress_info, transcriptions_concatenated_progress_info, video_translated_progress_info, video_subtitled_progress_info]
+            outputs=[auxiliar_block2, video_donwloaded_progress_info, video_sliced_progress_info, video_transcribed_progress_info, transcriptions_concatenated_progress_info, video_translated_progress_info, video_subtitled_progress_info, auxiliar_block1]
         )
-        auxiliar_block.change(
+        auxiliar_block2.change(
             fn=get_audio_and_video_from_video, 
             inputs=[url_textbox], 
             outputs=[video_donwloaded_progress_info, original_audio_path, original_video_path]
