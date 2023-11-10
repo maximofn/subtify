@@ -374,7 +374,7 @@ def reset_frontend():
     )
 
 def show_auxiliar_block1():
-    return gr.Textbox(value="URL checked", visible=True)
+    return gr.Textbox(value="URL checked", visible=False)
 
 def get_youtube_thumbnail(url):
     yt = YouTube(url)
@@ -614,7 +614,7 @@ def subtify():
         gr.Markdown("<h1 style='text-align: center;'>Subtify</h1>")
         gr.Markdown(html_subtify_logo)
         with gr.Row(variant="panel"):
-            url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
+            url_textbox = gr.Textbox(placeholder="Add video URL here and wait a moment", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # paste_button   = gr.Button(size="sm", icon="icons/paste.svg",   value="paste", min_width="10px", scale=0)
             delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="clear", min_width="10px", scale=0)
 
