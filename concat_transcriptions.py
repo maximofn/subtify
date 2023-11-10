@@ -94,17 +94,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("chunk_files", help="Path to the file containing the paths to the chunk files")
     parser.add_argument("seconds", help="Duration of each chunk in seconds")
-    parser.add_argument('speakers_file', help='File with the number of speakers')
     args = parser.parse_args()
 
     chunk_files = args.chunk_files
     seconds = int(args.seconds)
-    with open(args.speakers_file, 'r') as f:
-        speakers = f.read().splitlines()
-        speakers = int(speakers[0])
-
-    if speakers > 0:
-        for speaker in range(speakers):
-            pass
-    else:
-        concatenate_transcriptions(chunk_files, seconds)
+    concatenate_transcriptions(chunk_files, seconds)

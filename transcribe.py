@@ -21,7 +21,7 @@ for language_name, language_code in LANGUAGE_NAME_TO_CODE.items():
             "translator": language_code
         }
 
-def transcribe(audio_file, language, device, vocals):
+def transcribe(audio_file, language, num_speakers, device):
     output_folder = "transcriptions"
 
     # Transcribe audio file
@@ -37,31 +37,25 @@ def transcribe(audio_file, language, device, vocals):
     batch_size = 8
     verbose = False
     min_speakers = 1
-    max_speakers = 10
+    max_speakers = num_speakers
     threads = 4
     output_format = "srt"
     hf_token = "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"
     command = f'whisperx {audio_file} --model {model} --batch_size {batch_size} --compute_type {compute_type} \
 --output_dir {output_folder} --output_format {output_format} --verbose {verbose} --language {language} \
---fp16 {fp16} --threads {threads} --print_progress {print_progress} --device {device}'
-    if vocals:
-        command += f' --diarize --max_speakers {max_speakers} --min_speakers {min_speakers} --hf_token {hf_token}'
+--fp16 {fp16} --threads {threads} --print_progress {print_progress} --device {device} \
+--diarize --max_speakers {max_speakers} --min_speakers {min_speakers} --hf_token {hf_token}'
     os.system(command)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Transcribe audio files')
     parser.add_argument('input_files', help='Input audio files')
     parser.add_argument('language', help='Language of the audio file')
-    parser.add_argument('speakers_file', help='File with the number of speakers')
+    parser.add_argument('num_speakers', help='Number of speakers in the audio file')
     parser.add_argument('device', help='Device to use for PyTorch inference')
-    parser.add_argument('vocals', help='Vocals or not')
     args = parser.parse_args()
 
-    vocals_folder = "vocals"
-
-    with open(args.speakers_file, 'r') as f:
-        speakers = f.read().splitlines()
-        speakers = int(speakers[0])
+    chunks_folder = "chunks"
 
     with open(args.input_files, 'r') as f:
         inputs = f.read().splitlines()
@@ -70,13 +64,7 @@ if __name__ == "__main__":
     for input in inputs:
         input_file, _ = input.split('.')
         _, input_name = input_file.split('/')
-        if speakers > 0:
-            extension = "wav"
-            for i in range(speakers):
-                file = f'{vocals_folder}/{input_name}_speaker{i:003d}.{extension}'
-                transcribe(file, language_dict[args.language]["transcriber"], args.device, args.vocals)
-        else:
-            extension = "mp3"
-            file = f'{vocals_folder}/{input_name}.{extension}'
-            transcribe(file, language_dict[args.language]["transcriber"], args.device, args.vocals)
+        extension = "mp3"
+        file = f'{chunks_folder}/{input_name}.{extension}'
+        transcribe(file, language_dict[args.language]["transcriber"], args.num_speakers, args.device)
         progress_bar.update(1)

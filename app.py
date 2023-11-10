@@ -358,6 +358,7 @@ def reset_frontend():
         gr.Dropdown(visible=visible), 
         gr.Dropdown(visible=visible), 
         gr.Dropdown(visible=visible), 
+        gr.Accordion(visible=visible),
         gr.Button(visible=visible),
         gr.Textbox(visible=visible),
         gr.Textbox(visible=visible),
@@ -401,6 +402,7 @@ def is_valid_url(url):
     num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     source_languaje = gr.Dropdown(visible=True, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=True, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
+    advanced_setings = gr.Accordion(visible=True)
     number_of_speakers = gr.Dropdown(visible=True, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=True)
 
@@ -413,6 +415,7 @@ def is_valid_url(url):
                     gr.Image(value=thumbnail, visible=True, show_download_button=False, container=False), 
                     source_languaje,
                     target_languaje,
+                    advanced_setings,
                     number_of_speakers,
                     subtify_button, 
                 )
@@ -421,6 +424,7 @@ def is_valid_url(url):
                     gr.Image(value="assets/youtube-no-thumbnails.webp", visible=True, show_download_button=False, container=False), 
                     source_languaje,
                     target_languaje,
+                    advanced_setings,
                     number_of_speakers,
                     subtify_button, 
                 )
@@ -432,6 +436,7 @@ def is_valid_url(url):
                 gr.Image(value="assets/twitch.webp", visible=True, show_download_button=False, container=False), 
                 source_languaje,
                 target_languaje,
+                advanced_setings,
                 number_of_speakers,
                 subtify_button, 
             )
@@ -441,12 +446,14 @@ def is_valid_url(url):
     image = gr.Image(value="assets/youtube_error.webp", visible=visible, show_download_button=False, container=False)
     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True)
     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True)
+    advanced_setings = gr.Accordion(visible=visible)
     number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True)
     subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
     return (
         image, 
         source_languaje,
         target_languaje,
+        advanced_setings,
         number_of_speakers,
         subtify_button, 
     )
@@ -491,44 +498,26 @@ def slice_audio(audio_path):
     command = f"python {python_file} {audio_path} {SECONDS}"
     os.system(command)
 
-    with open(f"{folder_vocals}/speakers.txt", 'w') as f:
-        f.write(str(0))
-    command = f"mv {folder_chunck}/*.mp3 {folder_vocals}/"
-    os.system(command)
-
     return (
         gr.Textbox(value="Ok")
     )
 
-def trascribe_audio(source_languaje):
-    folder_vocals = "vocals"
+def trascribe_audio(source_languaje, number_of_speakers):
+    folder_chunks = "chunks"
     python_file = "transcribe.py"
-    chunck_file = "chunks/output_files.txt"
-    speakers_file = "vocals/speakers.txt"
-    command = f"python {python_file} {chunck_file} {source_languaje} {speakers_file} {DEVICE} {not SEPARE_VOCALS}"
+    chunks_file = "chunks/output_files.txt"
+    command = f"python {python_file} {chunks_file} {source_languaje} {number_of_speakers} {DEVICE}"
     os.system(command)
 
-    with open(chunck_file, 'r') as f:
+    with open(chunks_file, 'r') as f:
         files = f.read().splitlines()
-    with open(speakers_file, 'r') as f:
-        speakers = f.read().splitlines()
-        speakers = int(speakers[0])
     for file in files:
-        if speakers > 0:
-            vocals_extension = "wav"
-            for i in range(speakers):
-                file_name, _ = file.split(".")
-                _, file_name = file_name.split("/")
-                vocal = f'{folder_vocals}/{file_name}_speaker{i:003d}.{vocals_extension}'
-                command = f"rm {vocal}"
-                os.system(command)
-        else:
-            vocals_extension = "mp3"
-            file_name, _ = file.split(".")
-            _, file_name = file_name.split("/")
-            vocal = f'{folder_vocals}/{file_name}.{vocals_extension}'
-            command = f"rm {vocal}"
-            os.system(command)
+        audios_extension = "mp3"
+        file_name, _ = file.split(".")
+        _, file_name = file_name.split("/")
+        vocal = f'{folder_chunks}/{file_name}.{audios_extension}'
+        command = f"rm {vocal}"
+        os.system(command)
 
     return (
         gr.Textbox(value="Ok")
@@ -540,9 +529,8 @@ def concatenate_transcriptions():
         os.makedirs(folder_concatenated)
 
     chunck_file = "chunks/output_files.txt"
-    speakers_file = "vocals/speakers.txt"
     python_file = "concat_transcriptions.py"
-    command = f"python {python_file} {chunck_file} {SECONDS} {speakers_file}"
+    command = f"python {python_file} {chunck_file} {SECONDS}"
     os.system(command)
 
     with open(chunck_file, 'r') as f:
@@ -595,14 +583,18 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
     os.system(command)
     command = f"rm chunks/output_files.txt"
     os.system(command)
-    command = f"rm vocals/speakers.txt"
-    os.system(command)
 
     subtitled_video = "videos/download_video_with_subtitles.mp4"
     
+    visible = False
     return (
-        gr.Textbox(value="Ok"),
         gr.Video(value=subtitled_video, visible=True),
+        gr.Textbox(visible=visible),
+        gr.Textbox(visible=visible),
+        gr.Textbox(visible=visible),
+        gr.Textbox(visible=visible),
+        gr.Textbox(visible=visible),
+        gr.Textbox(value="Ok", visible=visible),
     )
 
 def subtify():
@@ -626,7 +618,7 @@ def subtify():
                 with gr.Row():
                     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True, info="Language of the video")
                     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True, info="Language to translate the subtitles")
-                with gr.Accordion("Advanced settings", open=True):
+                with gr.Accordion("Advanced settings", open=False, visible=visible) as Advanced_setings:
                     number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True, info="Number of speakers in the video, if you don't know, select 10")
                 subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
 
@@ -654,6 +646,7 @@ def subtify():
                 image, 
                 source_languaje, 
                 target_languaje, 
+                Advanced_setings,
                 number_of_speakers, 
                 subtify_button, 
                 auxiliar_block2, 
@@ -673,7 +666,7 @@ def subtify():
         auxiliar_block1.change(
             fn=is_valid_url, 
             inputs=url_textbox, 
-            outputs=[image, source_languaje, target_languaje, number_of_speakers, subtify_button]
+            outputs=[image, source_languaje, target_languaje, Advanced_setings, number_of_speakers, subtify_button]
         )
         subtify_button.click(
             fn=change_visibility_texboxes, 
@@ -691,7 +684,7 @@ def subtify():
         )
         video_sliced_progress_info.change(
             fn=trascribe_audio, 
-            inputs=[source_languaje], 
+            inputs=[source_languaje, number_of_speakers], 
             outputs=[video_transcribed_progress_info]
         )
         video_transcribed_progress_info.change(
@@ -706,7 +699,7 @@ def subtify():
         video_translated_progress_info.change(
             fn=add_translated_subtitles_to_video, 
             inputs=[original_video_path, original_audio_path, original_audio_translated_path], 
-            outputs=[video_subtitled_progress_info, subtitled_video]
+            outputs=[subtitled_video, video_donwloaded_progress_info, video_sliced_progress_info, video_transcribed_progress_info, transcriptions_concatenated_progress_info, video_translated_progress_info, video_subtitled_progress_info]
         )
 
         gr.Markdown(html_buy_me_a_coffe)
