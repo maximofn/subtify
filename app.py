@@ -546,7 +546,7 @@ def subtify():
         # Layout
         gr.Markdown(html_social_media)
         gr.Markdown("<h1 style='text-align: center;'>Subtify</h1>")
-        # gr.Markdown(html_subtify_logo)
+        gr.Markdown(html_subtify_logo)
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
