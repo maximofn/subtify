@@ -9,6 +9,7 @@ from lang_list import union_language_dict
 from pytube import YouTube
 import re
 from PIL import Image
+import urllib.request
 
 NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -29,6 +30,13 @@ else:
 YOUTUBE = "youtube"
 TWITCH = "twitch"
 ERROR = "error"
+
+urllib.request.urlretrieve('https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp', "subtify_logo.webp")
+subtify_logo = Image.open("subtify_logo.webp")
+subtify_logo_width, subtify_logo_height = subtify_logo.size
+factor = 5
+new_width = subtify_logo_width // factor
+new_height = subtify_logo_height // factor
 
 html_social_media = '''
 <div style="float: right;">
@@ -61,6 +69,16 @@ html_social_media = '''
     </a>
     <a href="http://kaggle.com/maximofn" rel="noopener noreferrer" aria-disabled="false" class="sm secondary  svelte-cmf5ev" id="component-1" style="flex-grow: 100;" target="_blank">
         <img src="http://127.0.0.1:7860/file=assets/kaggle.svg" alt="kaggle icon">
+    </a>
+</div>
+'''
+
+html_subtify_logo = f"<img src='http://127.0.0.1:7860/file=subtify_logo.webp' style='width: {new_width}px; height: {new_height}px; margin-left: auto; margin-right: auto; display: block;'/>"
+
+html_buy_me_a_coffe = '''
+<div style="float: right;">
+    <a href="https://www.buymeacoffee.com/maximofn" target="_blank">
+        <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-support_my_work-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white&labelColor=101010" alt="buy me a coffe">
     </a>
 </div>
 '''
@@ -283,7 +301,6 @@ def reset_frontend():
     )
 
 def show_auxiliar_block1():
-    print("show_auxiliar_block1")
     return gr.Textbox(value="URL checked", visible=True)
 
 def get_youtube_thumbnail(url):
@@ -518,16 +535,11 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
 def subtify():
     with gr.Blocks() as demo:
         num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-        subtify_logo = Image.open("assets/subtify_logo.webp")
-        subtify_logo_width, subtify_logo_height = subtify_logo.size
-        factor = 5
-        new_width = subtify_logo_width // factor
-        new_height = subtify_logo_height // factor
 
         # Layout
         gr.Markdown(html_social_media)
         gr.Markdown("<h1 style='text-align: center;'>Subtify</h1>")
-        gr.Markdown(f"<img src='https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp' style='width: {new_width}px; height: {new_height}px; margin-left: auto; margin-right: auto; display: block;'/>")
+        gr.Markdown(html_subtify_logo)
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
@@ -624,6 +636,8 @@ def subtify():
             outputs=[video_subtitled_progress_info, subtitled_video]
         )
 
+        gr.Markdown(html_buy_me_a_coffe)
+        
     demo.launch()
 
 
