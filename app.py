@@ -626,9 +626,9 @@ def subtify():
                 with gr.Row():
                     source_languaje = gr.Dropdown(visible=visible, label="Source languaje", show_label=True, value="English", choices=language_dict, scale=1, interactive=True, info="Language of the video")
                     target_languaje = gr.Dropdown(visible=visible, label="Target languaje", show_label=True, value="Español", choices=language_dict, scale=1, interactive=True, info="Language to translate the subtitles")
+                with gr.Accordion("Advanced settings", open=True):
                     number_of_speakers = gr.Dropdown(visible=visible, label="Number of speakers", show_label=True, value=10, choices=num_speaker, scale=1, interactive=True, info="Number of speakers in the video, if you don't know, select 10")
-                with gr.Row():
-                    subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
+                subtify_button = gr.Button(size="lg", value="subtify", min_width="10px", scale=0, visible=visible)
 
         auxiliar_block2 = gr.Textbox(placeholder="Waiting", label="Auxiliar block 2", elem_id="auxiliar_block2", interactive=False, visible=visible)
         with gr.Row():
