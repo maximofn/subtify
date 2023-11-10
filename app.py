@@ -15,12 +15,11 @@ NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DOWNLOAD = True
 SLICE_AUDIO = True
-SEPARE_VOCALS = False
 TRANSCRIBE_AUDIO = True
 CONCATENATE_TRANSCRIPTIONS = True
 TRANSLATE_TRANSCRIPTIONS = True
 ADD_SUBTITLES_TO_VIDEO = True
-REMOVE_FILES = False
+REMOVE_FILES = True
 if DEVICE == "cpu":
     # I supose that I am on huggingface server
     SECONDS = 300
@@ -161,12 +160,9 @@ language_dict = union_language_dict()
 def subtify_no_ui():
     number_works = 7
     progress_bar = tqdm(total=number_works, desc="Subtify")
-    folder_vocals = "vocals"
     folder_chunck = "chunks"
     folder_concatenated = "concatenated_transcriptions"
     folder_translated_transcriptions = "translated_transcriptions"
-    if not os.path.exists(folder_vocals):
-        os.makedirs(folder_vocals)
     if not os.path.exists(folder_chunck):
         os.makedirs(folder_chunck)
     if not os.path.exists(folder_concatenated):
@@ -178,16 +174,16 @@ def subtify_no_ui():
     if DOWNLOAD:
         print('*'*NUMBER)
         # url = "https://www.twitch.tv/videos/1936119752"             # twitch Rob Mula 2 horas
-        # url = "https://www.youtube.com/watch?v=yX5EJf4R77s"         # ✅ debate, varios hablantes, 3 minutos
+        url = "https://www.youtube.com/watch?v=yX5EJf4R77s"         # ✅ debate, varios hablantes, 3 minutos
         # url = "https://www.youtube.com/watch?v=cgx0QnXo1OU"         # ✅ smart home, un solo hablante, 4:42 minutos
-        url = "https://www.youtube.com/watch?v=dgOBxhi19T8"         # ✅ rob mula, muchos hablantes, 4:28 minutos
+        # url = "https://www.youtube.com/watch?v=dgOBxhi19T8"         # ✅ rob mula, muchos hablantes, 4:28 minutos
         # url = "https://www.youtube.com/watch?v=Coj72EzmX20"         # rob mula, un solo hablante, 16 minutos
         # url = "https://www.youtube.com/watch?v=Tqth0fKo0_g"           # Conversación short
         print(f"Downloading video and audio from {url}")
         python_file = "download.py"
         command = f"python {python_file} {url}"
         os.system(command)
-        sleep(5)
+        sleep(1)
         print('*'*NUMBER)
         print("\n\n")
     progress_bar.update(1)
@@ -204,66 +200,29 @@ def subtify_no_ui():
         print("\n\n")
     progress_bar.update(1)
 
-    ################## Get vocals ##################
-    chunck_file = "chunks/output_files.txt"
-    print('*'*NUMBER)
-    if SEPARE_VOCALS:
-        print("Get vocals")
-        python_file = "separe_vocals.py"
-        command = f"python {python_file} {chunck_file} {DEVICE}"
-        os.system(command)
-        if REMOVE_FILES:
-            with open(chunck_file, 'r') as f:
-                files = f.read().splitlines()
-            for file in files:
-                command = f"rm {file}"
-                os.system(command)
-    else:
-        print("Moving chunks")
-        with open(f"{folder_vocals}/speakers.txt", 'w') as f:
-            f.write(str(0))
-        if REMOVE_FILES:
-            command = f"mv {folder_chunck}/*.mp3 {folder_vocals}/"
-            os.system(command)
-        else:
-            command = f"cp {folder_chunck}/*.mp3 {folder_vocals}/"
-            os.system(command)
-    print('*'*NUMBER)
-    print("\n\n")
-    progress_bar.update(1)
-
-    ################# Transcript vocals ##################
-    speakers_file = "vocals/speakers.txt"
+    ################# Transcript slices ##################
     if TRANSCRIBE_AUDIO:
         print('*'*NUMBER)
-        print("Transcript vocals")
+        print("Transcript slices")
+        chunks_folder = "chunks"
+        if not os.path.exists(chunks_folder):
+            os.makedirs(chunks_folder)
         python_file = "transcribe.py"
-        language = "English"
-        command = f"python {python_file} {chunck_file} {language} {speakers_file} {DEVICE} {not SEPARE_VOCALS}"
+        chunks_file = "chunks/output_files.txt"
+        number_of_speakers = 10
+        source_languaje = "English"
+        command = f"python {python_file} {chunks_file} {source_languaje} {number_of_speakers} {DEVICE}"
         os.system(command)
         if REMOVE_FILES:
-            vocals_folder = "vocals"
-            with open(chunck_file, 'r') as f:
+            with open(chunks_file, 'r') as f:
                 files = f.read().splitlines()
-            with open(speakers_file, 'r') as f:
-                speakers = f.read().splitlines()
-                speakers = int(speakers[0])
             for file in files:
-                if speakers > 0:
-                    vocals_extension = "wav"
-                    for i in range(speakers):
-                        file_name, _ = file.split(".")
-                        _, file_name = file_name.split("/")
-                        vocal = f'{vocals_folder}/{file_name}_speaker{i:003d}.{vocals_extension}'
-                        command = f"rm {vocal}"
-                        os.system(command)
-                else:
-                    vocals_extension = "mp3"
-                    file_name, _ = file.split(".")
-                    _, file_name = file_name.split("/")
-                    vocal = f'{vocals_folder}/{file_name}.{vocals_extension}'
-                    command = f"rm {vocal}"
-                    os.system(command)
+                audios_extension = "mp3"
+                file_name, _ = file.split(".")
+                _, file_name = file_name.split("/")
+                vocal = f'{chunks_folder}/{file_name}.{audios_extension}'
+                command = f"rm {vocal}"
+                os.system(command)
         print('*'*NUMBER)
         print("\n\n")
     progress_bar.update(1)
@@ -272,8 +231,13 @@ def subtify_no_ui():
     if CONCATENATE_TRANSCRIPTIONS:
         print('*'*NUMBER)
         print("Concatenate transcriptions")
+        folder_concatenated = "concatenated_transcriptions"
+        if not os.path.exists(folder_concatenated):
+            os.makedirs(folder_concatenated)
+
+        chunck_file = "chunks/output_files.txt"
         python_file = "concat_transcriptions.py"
-        command = f"python {python_file} {chunck_file} {SECONDS} {speakers_file}"
+        command = f"python {python_file} {chunck_file} {SECONDS}"
         os.system(command)
         if REMOVE_FILES:
             with open(chunck_file, 'r') as f:
@@ -606,7 +570,9 @@ def hide_textbobes_progress_info():
 
 def subtify():
     with gr.Blocks() as demo:
-        num_speaker = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+        num_speaker = []
+        for i in range(100, 0, -1):
+            num_speaker.append(i)
 
         # Layout
         gr.Markdown(html_social_media)
