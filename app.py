@@ -34,7 +34,7 @@ ERROR = "error"
 urllib.request.urlretrieve('https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp', "subtify_logo.webp")
 subtify_logo = Image.open("subtify_logo.webp")
 subtify_logo_width, subtify_logo_height = subtify_logo.size
-factor = 5
+factor = 4
 new_width = subtify_logo_width // factor
 new_height = subtify_logo_height // factor
 
@@ -142,7 +142,11 @@ html_social_media = '''
 </div>
 '''
 
-html_subtify_logo = f"<img src='https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp'/>"# style='width: {new_width}px; height: {new_height}px; margin-left: auto; margin-right: auto; display: block;'/>"
+html_subtify_logo = f"""
+<div style="display: flex; justify-content: center; align-items: center;">
+    <img src='https://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp' width={new_width}px height={new_height}px >
+</div>
+"""
 
 html_buy_me_a_coffe = '''
 <div style="float: right;">
