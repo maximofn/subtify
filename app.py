@@ -589,12 +589,19 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
     visible = False
     return (
         gr.Video(value=subtitled_video, visible=True),
-        gr.Textbox(visible=visible),
-        gr.Textbox(visible=visible),
-        gr.Textbox(visible=visible),
-        gr.Textbox(visible=visible),
-        gr.Textbox(visible=visible),
         gr.Textbox(value="Ok", visible=visible),
+        gr.Textbox(value="Ok"),
+    )
+
+def hide_textbobes_progress_info():
+    visible = False
+    return (
+        gr.Textbox(value="Waiting", visible=visible),
+        gr.Textbox(value="Waiting", visible=visible),
+        gr.Textbox(value="Waiting", visible=visible),
+        gr.Textbox(value="Waiting", visible=visible),
+        gr.Textbox(value="Waiting", visible=visible),
+        gr.Textbox(value="Waiting", visible=visible),
     )
 
 def subtify():
@@ -636,6 +643,7 @@ def subtify():
         original_audio_transcribed_path = gr.Textbox(label="Original audio transcribed", elem_id="original_audio_transcribed", visible=visible)
         original_audio_translated_path = gr.Textbox(label="Original audio translated", elem_id="original_audio_translated", visible=visible)
         subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=visible)
+        auxiliar_block3 = gr.Textbox(placeholder="Waiting", label="Auxiliar block 3", elem_id="auxiliar_block3", interactive=False, visible=visible)
 
         # Events
         # paste_button.click(fn=paste_url_from_clipboard, outputs=url_textbox)
@@ -699,7 +707,11 @@ def subtify():
         video_translated_progress_info.change(
             fn=add_translated_subtitles_to_video, 
             inputs=[original_video_path, original_audio_path, original_audio_translated_path], 
-            outputs=[subtitled_video, video_donwloaded_progress_info, video_sliced_progress_info, video_transcribed_progress_info, transcriptions_concatenated_progress_info, video_translated_progress_info, video_subtitled_progress_info]
+            outputs=[subtitled_video, video_subtitled_progress_info, auxiliar_block3]
+        )
+        auxiliar_block3.change(
+            fn=hide_textbobes_progress_info, 
+            outputs=[video_donwloaded_progress_info, video_sliced_progress_info, video_transcribed_progress_info, transcriptions_concatenated_progress_info, video_translated_progress_info, video_subtitled_progress_info]
         )
 
         gr.Markdown(html_buy_me_a_coffe)
