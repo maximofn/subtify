@@ -13,6 +13,7 @@ import urllib.request
 
 NUMBER = 100
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"
 DOWNLOAD = True
 SLICE_AUDIO = True
 TRANSCRIBE_AUDIO = True
@@ -22,8 +23,14 @@ ADD_SUBTITLES_TO_VIDEO = True
 REMOVE_FILES = True
 if DEVICE == "cpu":
     # I supose that I am on huggingface server
-    SECONDS = 300
+    # Get RAM space
+    ram = int(os.popen("free -m | grep Mem | awk '{print $2}'").read())
+    vram = 12288
+    SECONDS = int(ram*700/vram)
+    print(f"RAM: {ram}")
 else:
+    # I supose that I am on my computer
+    # Get VRAM space
     SECONDS = 300
 
 YOUTUBE = "youtube"
@@ -158,7 +165,7 @@ html_buy_me_a_coffe = '''
 language_dict = union_language_dict()
 
 def subtify_no_ui():
-    number_works = 7
+    number_works = 6
     progress_bar = tqdm(total=number_works, desc="Subtify")
     folder_chunck = "chunks"
     folder_concatenated = "concatenated_transcriptions"
@@ -597,12 +604,12 @@ def subtify():
 
         auxiliar_block2 = gr.Textbox(placeholder="Waiting", label="Auxiliar block 2", elem_id="auxiliar_block2", interactive=False, visible=visible)
         with gr.Row():
-            video_donwloaded_progress_info = gr.Textbox(placeholder="Waiting", label="Video downloaded progress info", elem_id="video_donwloaded_progress_info", interactive=False, visible=visible)
-            video_sliced_progress_info = gr.Textbox(placeholder="Waiting", label="Video sliced progress info", elem_id="video_sliced_progress_info", interactive=False, visible=visible)
-            video_transcribed_progress_info = gr.Textbox(placeholder="Waiting", label="Video transcribed progress info", elem_id="video_transcribed_progress_info", interactive=False, visible=visible)
-            transcriptions_concatenated_progress_info = gr.Textbox(placeholder="Waiting", label="Transcriptions concatenated progress info", elem_id="transcriptions_concatenated_progress_info", interactive=False, visible=visible)
-            video_translated_progress_info = gr.Textbox(placeholder="Waiting", label="Transcription translated progress info", elem_id="transcription_translated_progress_info", interactive=False, visible=visible)
-            video_subtitled_progress_info = gr.Textbox(placeholder="Waiting", label="Video subtitled progress info", elem_id="video_subtitled_progress_info", interactive=False, visible=visible)
+            video_donwloaded_progress_info = gr.Textbox(placeholder="Waiting", label="Video download progress info", elem_id="video_donwloaded_progress_info", interactive=False, visible=visible)
+            video_sliced_progress_info = gr.Textbox(placeholder="Waiting", label="Video slice progress info", elem_id="video_sliced_progress_info", interactive=False, visible=visible)
+            video_transcribed_progress_info = gr.Textbox(placeholder="Waiting", label="Transcribe progress info", elem_id="video_transcribed_progress_info", interactive=False, visible=visible)
+            transcriptions_concatenated_progress_info = gr.Textbox(placeholder="Waiting", label="Concatenate progress info", elem_id="transcriptions_concatenated_progress_info", interactive=False, visible=visible)
+            video_translated_progress_info = gr.Textbox(placeholder="Waiting", label="Translate progress info", elem_id="transcription_translated_progress_info", interactive=False, visible=visible)
+            video_subtitled_progress_info = gr.Textbox(placeholder="Waiting", label="Video subtitle progress info", elem_id="video_subtitled_progress_info", interactive=False, visible=visible)
 
         original_audio_path = gr.Textbox(label="Original audio path", elem_id="original_audio_path", visible=visible)
         original_video_path = gr.Textbox(label="Original video path", elem_id="original_video_path", visible=visible)
