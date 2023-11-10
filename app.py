@@ -541,6 +541,7 @@ def subtify():
         gr.Markdown("<h1 style='text-align: center;'>Subtify</h1>")
         gr.Markdown(html_subtify_logo)
         gr.Image(value="subtify_logo.webp", visible=True, show_download_button=False, container=False)
+        gr.Image(value="assets/facebook.svg", visible=True, show_download_button=False, container=False)
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
             # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
