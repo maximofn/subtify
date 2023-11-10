@@ -347,8 +347,8 @@ def remove_all_files():
     command = f"rm -r vocals"
     os.system(command)
 
-# # def copy_url_from_clipboard():
-# #     return pyperclip.paste()
+# def paste_url_from_clipboard():
+#     return pyperclip.paste()
 
 def reset_frontend():
     visible = False
@@ -615,8 +615,8 @@ def subtify():
         gr.Markdown(html_subtify_logo)
         with gr.Row(variant="panel"):
             url_textbox = gr.Textbox(placeholder="Add video URL here", label="Video URL", elem_id="video_url", scale=1, interactive=True)
-            # copy_button   = gr.Button(size="sm", icon="icons/copy.svg",   value="", min_width="10px", scale=0)
-            delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="", min_width="10px", scale=0)
+            # paste_button   = gr.Button(size="sm", icon="icons/paste.svg",   value="paste", min_width="10px", scale=0)
+            delete_button = gr.Button(size="sm", icon="icons/delete.svg", value="clear", min_width="10px", scale=0)
 
         visible = False
         auxiliar_block1 = gr.Textbox(label="Auxiliar block 1", elem_id="auxiliar_block1", interactive=False, visible=visible)
@@ -646,7 +646,7 @@ def subtify():
         subtitled_video = gr.Video(label="Subtitled video", elem_id="subtitled_video", visible=visible, interactive=visible)
 
         # Events
-        # copy_button.click(fn=copy_url_from_clipboard, outputs=url_textbox)
+        # paste_button.click(fn=paste_url_from_clipboard, outputs=url_textbox)
         delete_button.click(
             fn=reset_frontend, 
             outputs=[
