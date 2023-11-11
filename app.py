@@ -25,9 +25,9 @@ if DEVICE == "cpu":
     # I supose that I am on huggingface server
     # Get RAM space
     ram = int(os.popen("free -m | grep Mem | awk '{print $2}'").read())
-    vram = 12288
-    SECONDS = int(ram*700/vram)
-    print(f"RAM: {ram}")
+    factor = 1
+    SECONDS = int(ram*factor)
+    print(f"RAM: {ram}, SECONDS: {SECONDS}")
 else:
     # I supose that I am on my computer
     # Get VRAM space
@@ -443,6 +443,13 @@ def change_visibility_texboxes():
     )
 
 def get_audio_and_video_from_video(url):
+    audios_folder = "audios"
+    videos_folder = "videos"
+    if not os.path.exists(audios_folder):
+        os.makedirs(audios_folder)
+    if not os.path.exists(videos_folder):
+        os.makedirs(videos_folder)
+    
     python_file = "download.py"
     command = f"python {python_file} {url}"
     os.system(command)

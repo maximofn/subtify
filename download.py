@@ -5,6 +5,7 @@ import twitchdl.commands as twitch_downloader
 import twitchdl.twitch
 from twitchdl.commands.download import _parse_playlists
 from tqdm import tqdm
+import re
 
 VIDEO_FOLDER = 'videos'
 AUDIO_FOLDER = 'audios'
@@ -39,17 +40,18 @@ def download_twitch(url, type):
     argparser.add_argument('videos', default=[url], help='Videos', nargs='+')
     args = argparser.parse_args()
 
+    # Get video id
+    video_id = re.search(r'(?<=videos\/)\d+', url).group(0)
+
     # Get qualitys
-    access_token = twitchdl.twitch.get_access_token(1942562640, None)
-    playlists_m3u8 = twitchdl.twitch.get_playlists(1942562640, access_token)
+    access_token = twitchdl.twitch.get_access_token(video_id, None)
+    playlists_m3u8 = twitchdl.twitch.get_playlists(video_id, access_token)
     playlists = list(_parse_playlists(playlists_m3u8))
     qualitys = [name for (name, _, _) in playlists]
 
     # Select quality
     if type == DOWNLOAD_VIDEO:
         args.quality = qualitys[0]
-        if args.quality == '1080p' or args.quality == '720p':
-            args.quality = f'{args.quality}60'
         args.format = DOWNLOAD_VIDEO_FORMAT
         args.output = f'{VIDEO_FOLDER}/{DOWNLOAD_VIDEO_NAME}.{args.format}'
     elif type == DOWNLOAD_AUDIO:
