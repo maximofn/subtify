@@ -1,6 +1,5 @@
 # gradio
 gradio
-gradio-client
 
 # Get environment
 transformers
