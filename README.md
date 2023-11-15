@@ -16,8 +16,8 @@ Subtify transforms any YouTube or Twitch video into a multilingual experience wi
 
 <div>
     <h2 align="center">
-        <a href="https://huggingface.co/spaces/sczhou/ProPainter" target='_blank'>
-        <img src="https://huggingface.co/spaces/Maximofn/subtify">
+        <a href="https://huggingface.co/spaces/Maximofn/subtify" target='_blank'>
+        <img src="https://img.shields.io/badge/Demo-%F0%9F%A4%97%20Hugging%20Face-blue">
         </a>
     </h2>
 </div>
