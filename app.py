@@ -1,4 +1,5 @@
 import gradio as gr
+from gradio_client import Client
 import argparse
 import os
 import torch
@@ -449,6 +450,10 @@ def get_audio_and_video_from_video(url):
         os.makedirs(audios_folder)
     if not os.path.exists(videos_folder):
         os.makedirs(videos_folder)
+
+    client = Client("https://maximofn-video-downloader.hf.space/--replicas/xtm22/")
+    result = client.predict(url, api_name="/download_audio_and_video")
+    print(result)
     
     python_file = "download.py"
     command = f"python {python_file} {url}"
