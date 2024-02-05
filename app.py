@@ -181,11 +181,12 @@ def subtify_no_ui():
     if DOWNLOAD:
         print('*'*NUMBER)
         # url = "https://www.twitch.tv/videos/1936119752"             # twitch Rob Mula 2 horas
-        url = "https://www.youtube.com/watch?v=yX5EJf4R77s"         # ✅ debate, varios hablantes, 3 minutos
+        # url = "https://www.youtube.com/watch?v=yX5EJf4R77s"         # ✅ debate, varios hablantes, 3 minutos
         # url = "https://www.youtube.com/watch?v=cgx0QnXo1OU"         # ✅ smart home, un solo hablante, 4:42 minutos
         # url = "https://www.youtube.com/watch?v=dgOBxhi19T8"         # ✅ rob mula, muchos hablantes, 4:28 minutos
         # url = "https://www.youtube.com/watch?v=Coj72EzmX20"         # rob mula, un solo hablante, 16 minutos
         # url = "https://www.youtube.com/watch?v=Tqth0fKo0_g"           # Conversación short
+        url = "https://www.youtube.com/watch?v=h9xPrgTYP_0"         # Letitia 40 segundos
         print(f"Downloading video and audio from {url}")
         python_file = "download.py"
         command = f"python {python_file} {url}"
@@ -271,8 +272,9 @@ def subtify_no_ui():
         command = f"python {python_file} {transcription_file} --source_languaje {source_languaje} --target_languaje {target_languaje} --device {DEVICE}"
         os.system(command)
         if REMOVE_FILES:
-            command = f"rm {transcription_file}"
-            os.system(command)
+            if os.path.exists(transcription_file):
+                command = f"rm {transcription_file}"
+                os.system(command)
         print('*'*NUMBER)
         print("\n\n")
     progress_bar.update(1)
@@ -288,35 +290,50 @@ def subtify_no_ui():
         command = f"python {python_file} {transcription_file} {input_video_file} {input_audio_file}"
         os.system(command)
         if REMOVE_FILES:
-            command = f"rm {input_video_file}"
-            os.system(command)
-            command = f"rm {input_audio_file}"
-            os.system(command)
-            command = f"rm {transcription_file}"
-            os.system(command)
-            command = f"rm chunks/output_files.txt"
-            os.system(command)
-            command = f"rm vocals/speakers.txt"
-            os.system(command)
+            if os.path.exists(input_video_file):
+                command = f"rm {input_video_file}"
+                os.system(command)
+            if os.path.exists(input_audio_file):
+                command = f"rm {input_audio_file}"
+                os.system(command)
+            if os.path.exists(transcription_file):
+                command = f"rm {transcription_file}"
+                os.system(command)
+            if os.path.exists("chunks/output_files.txt"):
+                command = f"rm chunks/output_files.txt"
+                os.system(command)
+            if os.path.exists("chunks"):
+                command = f"rm -r chunks"
+                os.system(command)
+            if os.path.exists("vocals/speakers.txt"):
+                command = f"rm vocals/speakers.txt"
+                os.system(command)
         print('*'*NUMBER)
         print("\n\n")
     progress_bar.update(1)
 
 def remove_all_files():
-    command = f"rm -r audios"
-    os.system(command)
-    command = f"rm -r chunks"
-    os.system(command)
-    command = f"rm -r concatenated_transcriptions"
-    os.system(command)
-    command = f"rm -r transcriptions"
-    os.system(command)
-    command = f"rm -r translated_transcriptions"
-    os.system(command)
-    command = f"rm -r videos"
-    os.system(command)
-    command = f"rm -r vocals"
-    os.system(command)
+    if os.path.exists("audios"):
+        command = f"rm -r audios"
+        os.system(command)
+    if os.path.exists("chunks"):
+        command = f"rm -r chunks"
+        os.system(command)
+    if os.path.exists("concatenated_transcriptions"):
+        command = f"rm -r concatenated_transcriptions"
+        os.system(command)
+    if os.path.exists("transcriptions"):
+        command = f"rm -r transcriptions"
+        os.system(command)
+    if os.path.exists("translated_transcriptions"):
+        command = f"rm -r translated_transcriptions"
+        os.system(command)
+    if os.path.exists("videos"):
+        command = f"rm -r videos"
+        os.system(command)
+    if os.path.exists("vocals"):
+        command = f"rm -r vocals"
+        os.system(command)
 
 # def paste_url_from_clipboard():
 #     return pyperclip.paste()
@@ -540,8 +557,9 @@ def translate_transcription(original_audio_transcribed_path, source_languaje, ta
     translated_transcription = f"translated_transcriptions/download_audio_{target_languaje}.srt"
 
     transcription_file = "concatenated_transcriptions/download_audio.srt"
-    command = f"rm {transcription_file}"
-    os.system(command)
+    if os.path.exists(transcription_file):
+        command = f"rm {transcription_file}"
+        os.system(command)
 
     return (
         gr.Textbox(value="Ok"),
@@ -553,14 +571,18 @@ def add_translated_subtitles_to_video(original_video_path, original_audio_path, 
     command = f"python {python_file} {original_audio_translated_path} {original_video_path} {original_audio_path}"
     os.system(command)
 
-    command = f"rm {original_video_path}"
-    os.system(command)
-    command = f"rm {original_audio_path}"
-    os.system(command)
-    command = f"rm {original_audio_translated_path}"
-    os.system(command)
-    command = f"rm chunks/output_files.txt"
-    os.system(command)
+    if os.path.exists(original_video_path):
+        command = f"rm {original_video_path}"
+        os.system(command)
+    if os.path.exists(original_audio_path):
+        command = f"rm {original_audio_path}"
+        os.system(command)
+    if os.path.exists(original_audio_translated_path):
+        command = f"rm {original_audio_translated_path}"
+        os.system(command)
+    if os.path.exists("chunks/output_files.txt"):
+        command = f"rm chunks/output_files.txt"
+        os.system(command)
 
     subtitled_video = "videos/download_video_with_subtitles.mp4"
     
