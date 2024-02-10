@@ -460,6 +460,9 @@ def change_visibility_texboxes():
     )
 
 def get_audio_and_video_from_video(url):
+    print('*'*NUMBER)
+    print(f"Downloading video and audio from {url}")
+
     audios_folder = "audios"
     videos_folder = "videos"
     if not os.path.exists(audios_folder):
@@ -482,6 +485,9 @@ def get_audio_and_video_from_video(url):
     )
 
 def slice_audio(audio_path):
+    print('*'*NUMBER)
+    print("Slicing audio")
+
     folder_vocals = "vocals"
     folder_chunck = "chunks"
     if not os.path.exists(folder_vocals):
@@ -498,6 +504,9 @@ def slice_audio(audio_path):
     )
 
 def trascribe_audio(source_languaje, number_of_speakers):
+    print('*'*NUMBER)
+    print("Transcript slices")
+
     folder_chunks = "chunks"
     python_file = "transcribe.py"
     chunks_file = "chunks/output_files.txt"
@@ -519,6 +528,9 @@ def trascribe_audio(source_languaje, number_of_speakers):
     )
 
 def concatenate_transcriptions():
+    print('*'*NUMBER)
+    print("Concatenate transcriptions")
+
     folder_concatenated = "concatenated_transcriptions"
     if not os.path.exists(folder_concatenated):
         os.makedirs(folder_concatenated)
@@ -546,6 +558,9 @@ def concatenate_transcriptions():
     )
 
 def translate_transcription(original_audio_transcribed_path, source_languaje, target_languaje):
+    print('*'*NUMBER)
+    print("Translate transcription")
+
     folder_translated_transcriptions = "translated_transcriptions"
     if not os.path.exists(folder_translated_transcriptions):
         os.makedirs(folder_translated_transcriptions)
@@ -567,6 +582,9 @@ def translate_transcription(original_audio_transcribed_path, source_languaje, ta
     )
 
 def add_translated_subtitles_to_video(original_video_path, original_audio_path, original_audio_translated_path):
+    print('*'*NUMBER)
+    print("Add subtitles to video")
+    
     python_file = "add_subtitles_to_video.py"
     command = f"python {python_file} {original_audio_translated_path} {original_video_path} {original_audio_path}"
     os.system(command)
