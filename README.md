@@ -8,6 +8,7 @@ sdk_version: 3.49.0
 app_file: app.py
 pinned: false
 license: mit
+thumbnail: http://maximofn.com/wp-content/uploads/2023/11/subtify_logo-scaled.webp
 ---
 
 # Subtify
